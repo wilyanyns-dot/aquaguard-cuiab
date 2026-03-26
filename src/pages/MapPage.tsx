@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Camera, CheckCircle, Filter, Crosshair, Plus, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const markers = [
   { id: 1, type: "vazamento", x: 35, y: 40, label: "Rua das Palmeiras", desc: "Vazamento médio", time: "Há 2 horas", confirms: 15, color: "bg-vermelho-critico" },
@@ -41,9 +42,12 @@ const MapPage = () => {
               <ArrowLeft className="w-5 h-5 text-foreground" strokeWidth={1.5} />
             </button>
             <h1 className="font-display font-bold text-foreground text-lg">Mapa de Saneamento</h1>
-            <button className="w-10 h-10 rounded-full bg-card shadow-card flex items-center justify-center">
-              <Filter className="w-5 h-5 text-foreground" strokeWidth={1.5} />
-            </button>
+            <div className="flex gap-2">
+              <ThemeToggle className="text-foreground w-10 h-10 rounded-full bg-card shadow-card flex items-center justify-center" />
+              <button className="w-10 h-10 rounded-full bg-card shadow-card flex items-center justify-center">
+                <Filter className="w-5 h-5 text-foreground" strokeWidth={1.5} />
+              </button>
+            </div>
           </div>
         </div>
 

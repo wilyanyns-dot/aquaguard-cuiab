@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Globe, MapPin, Phone, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Counter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
   const [count, setCount] = useState(0);
@@ -53,10 +54,11 @@ const AboutPage = () => {
     <div className="min-h-screen bg-background pb-20">
       {/* Hero */}
       <div className="relative h-56 gradient-header flex items-end">
-        <div className="absolute top-12 left-5">
+        <div className="absolute top-12 left-5 right-5 flex items-center justify-between">
           <button onClick={() => navigate(-1)}>
             <ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
           </button>
+          <ThemeToggle className="text-primary-foreground" />
         </div>
         <div className="px-5 pb-6">
           <h1 className="font-display font-bold text-primary-foreground text-xl leading-tight">

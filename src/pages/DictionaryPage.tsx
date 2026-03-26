@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Search, Droplets, Leaf, Building } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const filters = [
   { icon: Droplets, label: "Água" },
@@ -70,7 +71,7 @@ const DictionaryPage = () => {
             <ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
           </button>
           <h1 className="font-display font-bold text-primary-foreground text-lg">Dicionário Ambiental</h1>
-          <div className="w-5" />
+          <ThemeToggle className="text-primary-foreground" />
         </div>
         {/* Search */}
         <div className="relative">

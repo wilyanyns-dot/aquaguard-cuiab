@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Plus, ThumbsUp, BookmarkPlus, Share2, Search, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const categories = ["Economia de Água", "Reuso de Chuva", "Limpeza de Caixa d'Água", "Horta e Jardim"];
 
@@ -23,7 +24,7 @@ const CommunityPage = () => {
             <ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
           </button>
           <h1 className="font-display font-bold text-primary-foreground text-lg">Dicas da Comunidade</h1>
-          <div className="w-5" />
+          <ThemeToggle className="text-primary-foreground" />
         </div>
         {/* Search */}
         <div className="relative">

@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { UserProvider } from "@/contexts/UserContext";
 import BottomTabBar from "@/components/BottomTabBar";
 import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
@@ -17,13 +18,17 @@ import AchievementsPage from "./pages/AchievementsPage";
 import PortalPage from "./pages/PortalPage";
 import PagamentosPage from "./pages/PagamentosPage";
 import AboutPage from "./pages/AboutPage";
+import OnboardingPage from "./pages/OnboardingPage";
+import EducaSaneamentoPage from "./pages/EducaSaneamentoPage";
+import TourVirtualPage from "./pages/TourVirtualPage";
+import VoceSaneamentoPage from "./pages/VoceSaneamentoPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
-  const showTabs = location.pathname !== "/";
+  const hideTabs = ["/", "/onboarding"].includes(location.pathname);
 
   return (
     <>
@@ -31,6 +36,7 @@ const AppContent = () => {
       <Sonner />
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/consumo" element={<ConsumptionPage />} />
         <Route path="/mapa" element={<MapPage />} />
@@ -42,22 +48,27 @@ const AppContent = () => {
         <Route path="/portal" element={<PortalPage />} />
         <Route path="/pagamentos" element={<PagamentosPage />} />
         <Route path="/sobre" element={<AboutPage />} />
+        <Route path="/educa" element={<EducaSaneamentoPage />} />
+        <Route path="/tour" element={<TourVirtualPage />} />
+        <Route path="/voce-saneamento" element={<VoceSaneamentoPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {showTabs && <BottomTabBar />}
+      {!hideTabs && <BottomTabBar />}
     </>
   );
 };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+    <UserProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </UserProvider>
   </QueryClientProvider>
 );
 

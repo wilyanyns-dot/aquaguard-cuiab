@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Home, Droplets, Heart, Settings, Newspaper, Building2, Info, LogOut, Trophy, Star } from "lucide-react";
+import { X, Home, Droplets, Heart, CreditCard, Newspaper, Building2, Info, LogOut, Trophy, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface SidebarDrawerProps {
@@ -13,6 +13,7 @@ const menuItems = [
   { icon: Heart, label: "Dicas da Comunidade", path: "/comunidade" },
   { icon: Trophy, label: "Conquistas", path: "/conquistas" },
   { icon: Newspaper, label: "Notícias", path: "/noticias" },
+  { icon: CreditCard, label: "Pagamentos", path: "/pagamentos" },
   { icon: Building2, label: "Nosso Portal", path: "/portal" },
   { icon: Info, label: "Sobre Nós", path: "/sobre" },
 ];

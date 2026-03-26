@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Menu, Sun } from "lucide-react";
+import { Menu } from "lucide-react";
 import ConsumptionCard from "@/components/ConsumptionCard";
 import QuickActions from "@/components/QuickActions";
 import PortalBanner from "@/components/PortalBanner";
 import SidebarDrawer from "@/components/SidebarDrawer";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const HomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,9 +18,7 @@ const HomePage = () => {
             <Menu className="w-6 h-6" strokeWidth={1.5} />
           </button>
           <h1 className="font-display font-bold text-primary-foreground text-lg">Saneamento Cuiabá</h1>
-          <button className="text-primary-foreground">
-            <Sun className="w-5 h-5" strokeWidth={1.5} />
-          </button>
+          <ThemeToggle className="text-primary-foreground" />
         </div>
       </div>
 

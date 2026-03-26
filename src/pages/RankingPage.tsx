@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Star, Trophy, Users, TrendingUp, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const levels = [
   { name: "Bronze", color: "bg-amber-700", min: 0 },
@@ -34,7 +35,7 @@ const RankingPage = () => {
             <ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
           </button>
           <h1 className="font-display font-bold text-primary-foreground text-lg">AquaMaster</h1>
-          <button><HelpCircle className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} /></button>
+          <ThemeToggle className="text-primary-foreground" />
         </div>
         {/* User card */}
         <motion.div

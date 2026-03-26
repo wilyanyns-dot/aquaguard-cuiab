@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Trophy, Medal, Star, Shield, Droplets, Bug, Leaf, Sun, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const achievements = [
   { icon: Shield, name: "Pai de Família Consciente", desc: "Reduziu consumo por 3 meses seguidos", unlocked: true, color: "text-amarelo-alerta" },
@@ -26,7 +27,7 @@ const AchievementsPage = () => {
             <ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
           </button>
           <h1 className="font-display font-bold text-primary-foreground text-lg">Minhas Conquistas</h1>
-          <div className="w-5" />
+          <ThemeToggle className="text-primary-foreground" />
         </div>
         {/* Hero stats */}
         <motion.div

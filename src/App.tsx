@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/hooks/useTheme";
 import BottomTabBar from "@/components/BottomTabBar";
 import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
@@ -14,6 +15,7 @@ import DictionaryPage from "./pages/DictionaryPage";
 import CommunityPage from "./pages/CommunityPage";
 import AchievementsPage from "./pages/AchievementsPage";
 import PortalPage from "./pages/PortalPage";
+import PagamentosPage from "./pages/PagamentosPage";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +40,7 @@ const AppContent = () => {
         <Route path="/comunidade" element={<CommunityPage />} />
         <Route path="/conquistas" element={<AchievementsPage />} />
         <Route path="/portal" element={<PortalPage />} />
+        <Route path="/pagamentos" element={<PagamentosPage />} />
         <Route path="/sobre" element={<AboutPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -48,11 +51,13 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

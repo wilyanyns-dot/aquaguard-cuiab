@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Gamepad2, BookOpen, Glasses, HandMetal, MoreHorizontal } from "lucide-react";
+import { Gamepad2, BookOpen, Glasses, HandMetal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const actions = [
@@ -7,7 +7,6 @@ const actions = [
   { icon: BookOpen, label: "Dicionário\nAmbiental", path: "/dicionario" },
   { icon: Glasses, label: "Tour\nVirtual", path: "/tour" },
   { icon: HandMetal, label: "Você no\nSaneamento", path: "/voce-saneamento" },
-  { icon: MoreHorizontal, label: "Mostra\nMais", path: "/mais" },
 ];
 
 const QuickActions = () => {
@@ -20,7 +19,7 @@ const QuickActions = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      {actions.map((action, i) => (
+      {actions.map((action) => (
         <button
           key={action.path}
           onClick={() => navigate(action.path)}

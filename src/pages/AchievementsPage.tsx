@@ -11,6 +11,8 @@ const achievements = [
   { icon: Droplets, name: "Guardião do Pantanal", desc: "Top 10% de economia no bairro", unlocked: false, color: "text-primary" },
 ];
 
+const totalSaved = 17.5;
+
 const benefits = [
   { label: "Bônus Conquista Nível 2", value: "-R$ 5,00" },
   { label: "Redução de Consumo Meta Mensal", value: "-R$ 12,50" },
@@ -23,56 +25,39 @@ const AchievementsPage = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="gradient-header px-5 pt-12 pb-8 rounded-b-3xl">
         <div className="flex items-center justify-between mb-4">
-          <button onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
-          </button>
+          <button onClick={() => navigate(-1)}><ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} /></button>
           <h1 className="font-display font-bold text-primary-foreground text-lg">Minhas Conquistas</h1>
           <ThemeToggle className="text-primary-foreground" />
         </div>
-        {/* Hero stats */}
-        <motion.div
-          className="bg-primary-foreground/15 rounded-2xl p-4"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div className="bg-primary-foreground/15 rounded-2xl p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-primary-foreground/80 text-sm font-body mb-1">Você economizou</p>
           <p className="text-3xl font-display font-bold text-primary-foreground">15%</p>
           <p className="text-primary-foreground/70 text-xs font-body">de água este mês</p>
           <div className="mt-3 bg-primary-foreground/20 rounded-xl p-3">
             <p className="text-primary-foreground text-xs font-body">
-              💰 Desconto estimado na próxima fatura: <span className="font-display font-bold">R$ 18,50</span>
+              💰 Desconto estimado na próxima fatura: <span className="font-display font-bold">R$ {totalSaved.toFixed(2)}</span>
+            </p>
+            <p className="text-primary-foreground/60 text-[10px] font-body mt-1">
+              Este valor está refletido em "Economizado" nos Pagamentos
             </p>
           </div>
         </motion.div>
       </div>
 
       <div className="px-5 -mt-3 space-y-4">
-        {/* XP Bar */}
         <div className="bg-card rounded-2xl shadow-card p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="font-display font-bold text-sm text-foreground">Nível: Cidadão Prata</span>
             <span className="text-xs font-body text-cinza-medio">450 / 750 XP</span>
           </div>
           <div className="h-3 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full gradient-primary"
-              initial={{ width: 0 }}
-              animate={{ width: "60%" }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            />
+            <motion.div className="h-full rounded-full gradient-primary" initial={{ width: 0 }} animate={{ width: "60%" }} transition={{ delay: 0.3, duration: 0.8 }} />
           </div>
         </div>
 
-        {/* Medals grid */}
         <div className="space-y-2">
           {achievements.map((a, i) => (
-            <motion.div
-              key={a.name}
-              className={`flex items-center gap-3 p-3 rounded-xl ${a.unlocked ? "bg-card shadow-card" : "bg-muted/50"}`}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
+            <motion.div key={a.name} className={`flex items-center gap-3 p-3 rounded-xl ${a.unlocked ? "bg-card shadow-card" : "bg-muted/50"}`} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${a.unlocked ? "gradient-primary" : "bg-muted"}`}>
                 <a.icon className={`w-5 h-5 ${a.unlocked ? "text-primary-foreground" : "text-cinza-claro"}`} strokeWidth={1.5} />
               </div>
@@ -85,7 +70,6 @@ const AchievementsPage = () => {
           ))}
         </div>
 
-        {/* Benefits */}
         <div className="bg-card rounded-2xl shadow-card p-4">
           <h3 className="font-display font-bold text-sm text-foreground mb-3">Extrato de Benefícios</h3>
           {benefits.map((b) => (
@@ -94,9 +78,12 @@ const AchievementsPage = () => {
               <span className="font-display font-bold text-sm text-verde-sucesso">{b.value}</span>
             </div>
           ))}
+          <div className="flex justify-between py-2 mt-1 bg-verde-sucesso/5 rounded-lg px-2">
+            <span className="font-body text-xs font-semibold text-verde-sucesso">Total Economizado</span>
+            <span className="font-display font-bold text-sm text-verde-sucesso">-R$ {totalSaved.toFixed(2)}</span>
+          </div>
         </div>
 
-        {/* Share button */}
         <button className="w-full py-3 rounded-full gradient-primary text-primary-foreground font-display font-semibold flex items-center justify-center gap-2">
           <Share2 className="w-5 h-5" strokeWidth={1.5} /> Compartilhar Vitória
         </button>

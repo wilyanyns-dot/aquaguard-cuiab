@@ -55,6 +55,7 @@ const AppContent = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideTabs && <BottomTabBar />}
+      {!hideTabs && <AIChatAssistant />}
     </>
   );
 };

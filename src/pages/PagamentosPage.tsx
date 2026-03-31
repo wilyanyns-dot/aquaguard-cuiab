@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CreditCard, Download, QrCode, Receipt, TrendingUp, TrendingDown, BarChart3, Eye, EyeOff, Copy, Check, ExternalLink, X, Loader2, ChevronLeft, FileText } from "lucide-react";
+import { ArrowLeft, CreditCard, Download, QrCode, Receipt, TrendingUp, TrendingDown, BarChart3, Eye, EyeOff, Copy, Check, ExternalLink, X, Loader2, ChevronLeft, FileText, UserCog, DropletIcon, Plug, TestTube, AlertCircle, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useUser } from "@/contexts/UserContext";
@@ -23,6 +23,13 @@ const monthlyData = [
   { month: "Fev", expense: 92.3, saving: 10 }, { month: "Mar", expense: 85.9, saving: 17.5 },
 ];
 
+const consumo12 = [
+  { mes: "Abr/24", litros: 4200 }, { mes: "Mai/24", litros: 3900 }, { mes: "Jun/24", litros: 3600 },
+  { mes: "Jul/24", litros: 3800 }, { mes: "Ago/24", litros: 4100 }, { mes: "Set/24", litros: 4500 },
+  { mes: "Out/24", litros: 4300 }, { mes: "Nov/24", litros: 4000 }, { mes: "Dez/24", litros: 4600 },
+  { mes: "Jan/25", litros: 3700 }, { mes: "Fev/25", litros: 4200 }, { mes: "Mar/25", litros: 3950 },
+];
+
 const banks = [
   { name: "Nubank", color: "#8B5CF6", url: "https://nubank.com.br" },
   { name: "Itaú", color: "#FF6600", url: "https://itau.com.br" },
@@ -39,7 +46,7 @@ const faturas = [
   { id: 4, mes: "Dezembro/2024", valor: 95.0, venc: "15/12/2024", status: "paga" },
 ];
 
-type SubPage = "main" | "pix" | "segunda_via" | "faturas" | "historico" | "todas_transacoes" | "comprovante";
+type SubPage = "main" | "pix" | "segunda_via" | "faturas" | "historico" | "todas_transacoes" | "comprovante" | "titularidade" | "consumo12" | "religar" | "nova_ligacao" | "qualidade";
 
 const PagamentosPage = () => {
   const navigate = useNavigate();
@@ -52,8 +59,16 @@ const PagamentosPage = () => {
   const [pixCode] = useState(() => `00020126580014br.gov.bcb.pix0136${Math.random().toString(36).substring(2, 15)}520400005303986540${(85.9).toFixed(2)}5802BR`);
   const [faturaTab, setFaturaTab] = useState<"pendente" | "paga">("pendente");
 
+  // Titularidade form
+  const [titForm, setTitForm] = useState({ nomeNovo: "", cpfNovo: "", motivo: "" });
+  // Religar form
+  const [religarProtocolo, setReligarProtocolo] = useState("");
+  // Nova ligação form
+  const [novaForm, setNovaForm] = useState({ endereco: "", cep: "", tipo: "residencial" });
+
   const balance = 85.9;
   const totalSaved = 17.5;
+  const hasPendencia = faturas.some(f => f.status === "pendente");
   const filtered = filter === "all" ? allTransactions.slice(0, 5) : allTransactions.filter((t) => t.type === filter).slice(0, 5);
 
   const copyPix = async () => {
@@ -72,7 +87,6 @@ const PagamentosPage = () => {
     toast({ title: "PDF gerado com sucesso!", description: `Fatura de ${mes} pronta para download.` });
   };
 
-  // Sub-page header
   const SubHeader = ({ title, onBack }: { title: string; onBack: () => void }) => (
     <div className="px-5 pt-12 pb-4 flex items-center justify-between">
       <button onClick={onBack}><ChevronLeft className="w-5 h-5 text-foreground" strokeWidth={1.5} /></button>
@@ -117,9 +131,7 @@ const PagamentosPage = () => {
           {paying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
           {paying ? "Verificando pagamento..." : "Já realizei o pagamento"}
         </button>
-        <button onClick={() => setSubPage("main")} className="w-full py-3 rounded-full border border-destructive text-destructive font-display font-semibold text-sm">
-          Cancelar e Voltar
-        </button>
+        <button onClick={() => setSubPage("main")} className="w-full py-3 rounded-full border border-destructive text-destructive font-display font-semibold text-sm">Cancelar e Voltar</button>
       </div>
     </div>
   );
@@ -249,6 +261,172 @@ const PagamentosPage = () => {
     </div>
   );
 
+  // Troca de Titularidade
+  if (subPage === "titularidade") return (
+    <div className="min-h-screen bg-background pb-20">
+      <SubHeader title="Troca de Titularidade" onBack={() => setSubPage("main")} />
+      <div className="px-5 space-y-4">
+        <div className="bg-card rounded-2xl shadow-card p-4">
+          <p className="font-body text-xs text-cinza-medio mb-4">Preencha os dados do novo titular para solicitar a transferência.</p>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-display font-semibold text-foreground mb-1 block">Nome do Novo Titular</label>
+              <input value={titForm.nomeNovo} onChange={e => setTitForm(p => ({ ...p, nomeNovo: e.target.value }))} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" placeholder="Nome completo" />
+            </div>
+            <div>
+              <label className="text-xs font-display font-semibold text-foreground mb-1 block">CPF do Novo Titular</label>
+              <input value={titForm.cpfNovo} onChange={e => setTitForm(p => ({ ...p, cpfNovo: e.target.value }))} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" placeholder="000.000.000-00" />
+            </div>
+            <div>
+              <label className="text-xs font-display font-semibold text-foreground mb-1 block">Motivo</label>
+              <select value={titForm.motivo} onChange={e => setTitForm(p => ({ ...p, motivo: e.target.value }))} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none">
+                <option value="">Selecione</option>
+                <option value="venda">Venda do imóvel</option>
+                <option value="aluguel">Início de aluguel</option>
+                <option value="heranca">Herança / Inventário</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <p className="font-body text-[10px] text-cinza-medio">Documentos necessários: RG/CPF do novo titular, comprovante de endereço e documento de comprovação (contrato de compra/venda, contrato de aluguel, etc.).</p>
+        <button onClick={() => { toast({ title: "Solicitação enviada!", description: "Acompanhe o protocolo na área de faturas." }); setSubPage("main"); }} disabled={!titForm.nomeNovo || !titForm.cpfNovo || !titForm.motivo} className="w-full py-3.5 rounded-full gradient-primary text-primary-foreground font-display font-semibold disabled:opacity-50">
+          Enviar Solicitação
+        </button>
+      </div>
+    </div>
+  );
+
+  // Histórico de consumo 12 meses
+  if (subPage === "consumo12") {
+    const maxL = Math.max(...consumo12.map(c => c.litros));
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <SubHeader title="Consumo (12 meses)" onBack={() => setSubPage("main")} />
+        <div className="px-5">
+          <div className="bg-card rounded-2xl shadow-card p-4">
+            <h3 className="font-display font-bold text-foreground text-sm mb-4">Histórico de Consumo</h3>
+            <div className="flex items-end gap-1.5 h-44">
+              {consumo12.map((d) => (
+                <div key={d.mes} className="flex-1 flex flex-col items-center gap-1">
+                  <div className="w-full relative" style={{ height: "140px" }}>
+                    <motion.div className="absolute bottom-0 w-full rounded-t-lg gradient-primary" initial={{ height: 0 }} animate={{ height: `${(d.litros / maxL) * 100}%` }} transition={{ delay: 0.2 }} />
+                  </div>
+                  <span className="text-[7px] text-cinza-medio font-body">{d.mes.split("/")[0]}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 space-y-2">
+              {consumo12.map(d => (
+                <div key={d.mes} className="flex justify-between py-1 border-b border-border last:border-0">
+                  <span className="text-xs font-body text-cinza-medio">{d.mes}</span>
+                  <span className="text-xs font-display font-bold text-foreground">{d.litros.toLocaleString("pt-BR")} L</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Religar Água
+  if (subPage === "religar") return (
+    <div className="min-h-screen bg-background pb-20">
+      <SubHeader title="Religar Água" onBack={() => setSubPage("main")} />
+      <div className="px-5 space-y-4">
+        <div className="bg-card rounded-2xl shadow-card p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center"><DropletIcon className="w-6 h-6 text-primary" /></div>
+            <div>
+              <p className="font-display font-bold text-foreground text-sm">Solicitação de Religação</p>
+              <p className="text-[10px] text-cinza-medio font-body">Pós-pagamento de débitos pendentes</p>
+            </div>
+          </div>
+          <p className="font-body text-xs text-cinza-medio mb-3">Ao confirmar, um técnico será enviado para religação no prazo de até 48 horas úteis.</p>
+          <div>
+            <label className="text-xs font-display font-semibold text-foreground mb-1 block">Protocolo de Pagamento (opcional)</label>
+            <input value={religarProtocolo} onChange={e => setReligarProtocolo(e.target.value)} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" placeholder="Nº do protocolo" />
+          </div>
+        </div>
+        <button onClick={() => { toast({ title: "Solicitação de religação enviada!", description: "Acompanhe o status pelo app." }); setSubPage("main"); }} className="w-full py-3.5 rounded-full gradient-primary text-primary-foreground font-display font-semibold">
+          Solicitar Religação
+        </button>
+      </div>
+    </div>
+  );
+
+  // Nova Ligação
+  if (subPage === "nova_ligacao") return (
+    <div className="min-h-screen bg-background pb-20">
+      <SubHeader title="Nova Ligação" onBack={() => setSubPage("main")} />
+      <div className="px-5 space-y-4">
+        <div className="bg-card rounded-2xl shadow-card p-4 space-y-3">
+          <p className="font-body text-xs text-cinza-medio">Solicite uma nova ligação de água para seu imóvel.</p>
+          <div>
+            <label className="text-xs font-display font-semibold text-foreground mb-1 block">Endereço Completo</label>
+            <input value={novaForm.endereco} onChange={e => setNovaForm(p => ({ ...p, endereco: e.target.value }))} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" placeholder="Rua, número, bairro" />
+          </div>
+          <div>
+            <label className="text-xs font-display font-semibold text-foreground mb-1 block">CEP</label>
+            <input value={novaForm.cep} onChange={e => setNovaForm(p => ({ ...p, cep: e.target.value }))} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" placeholder="00000-000" />
+          </div>
+          <div>
+            <label className="text-xs font-display font-semibold text-foreground mb-1 block">Tipo de Imóvel</label>
+            <select value={novaForm.tipo} onChange={e => setNovaForm(p => ({ ...p, tipo: e.target.value }))} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none">
+              <option value="residencial">Residencial</option>
+              <option value="comercial">Comercial</option>
+              <option value="industrial">Industrial</option>
+            </select>
+          </div>
+        </div>
+        <button onClick={() => { toast({ title: "Solicitação enviada!", description: "Nossa equipe entrará em contato em até 5 dias úteis." }); setSubPage("main"); }} disabled={!novaForm.endereco || !novaForm.cep} className="w-full py-3.5 rounded-full gradient-primary text-primary-foreground font-display font-semibold disabled:opacity-50">
+          Solicitar Nova Ligação
+        </button>
+      </div>
+    </div>
+  );
+
+  // Qualidade da Água
+  if (subPage === "qualidade") return (
+    <div className="min-h-screen bg-background pb-20">
+      <SubHeader title="Qualidade da Água" onBack={() => setSubPage("main")} />
+      <div className="px-5 space-y-4">
+        <div className="bg-card rounded-2xl shadow-card p-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-verde-sucesso/10 flex items-center justify-center"><TestTube className="w-6 h-6 text-verde-sucesso" /></div>
+            <div>
+              <p className="font-display font-bold text-foreground">Relatório Técnico</p>
+              <p className="text-[10px] text-cinza-medio font-body">ETA Central — Última análise: {new Date().toLocaleDateString("pt-BR")}</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {[
+              { param: "Cloro Residual", valor: "0,8 mg/L", status: "ok", ref: "0,2 a 2,0 mg/L" },
+              { param: "Turbidez", valor: "0,5 NTU", status: "ok", ref: "≤ 5,0 NTU" },
+              { param: "pH", valor: "7,2", status: "ok", ref: "6,0 a 9,5" },
+              { param: "Coliformes Totais", valor: "Ausente", status: "ok", ref: "Ausência" },
+              { param: "Fluoreto", valor: "0,7 mg/L", status: "ok", ref: "0,6 a 0,8 mg/L" },
+              { param: "Cor Aparente", valor: "5 uH", status: "ok", ref: "≤ 15 uH" },
+            ].map(p => (
+              <div key={p.param} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div>
+                  <p className="font-display font-semibold text-xs text-foreground">{p.param}</p>
+                  <p className="text-[10px] text-cinza-medio font-body">Ref: {p.ref}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-display font-bold text-sm text-foreground">{p.valor}</span>
+                  <div className="w-5 h-5 rounded-full bg-verde-sucesso/10 flex items-center justify-center"><Check className="w-3 h-3 text-verde-sucesso" /></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="font-body text-[10px] text-cinza-medio text-center">Dados conforme Portaria GM/MS nº 888/2021. Análises realizadas pela ETA Central de Cuiabá.</p>
+      </div>
+    </div>
+  );
+
   // MAIN page
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -258,7 +436,14 @@ const PagamentosPage = () => {
           <h1 className="font-display font-bold text-primary-foreground text-lg">Pagamentos</h1>
           <ThemeToggle className="text-primary-foreground" />
         </div>
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-primary-foreground/15 backdrop-blur-sm rounded-2xl p-5 border border-primary-foreground/20">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-primary-foreground/15 backdrop-blur-sm rounded-2xl p-5 border border-primary-foreground/20 relative">
+          {/* Pendência marker */}
+          {hasPendencia && (
+            <div className="absolute -top-2 -right-2 flex items-center gap-1 bg-amarelo-alerta px-2 py-0.5 rounded-full">
+              <AlertCircle className="w-3 h-3 text-foreground" />
+              <span className="text-[9px] font-display font-bold text-foreground">Pendência</span>
+            </div>
+          )}
           <div className="flex items-center justify-between mb-1">
             <span className="text-primary-foreground/70 text-xs font-body">Saldo Atual</span>
             <button onClick={() => setShowBalance(!showBalance)}>{showBalance ? <Eye className="w-4 h-4 text-primary-foreground/70" /> : <EyeOff className="w-4 h-4 text-primary-foreground/70" />}</button>
@@ -293,7 +478,28 @@ const PagamentosPage = () => {
       </div>
 
       <div className="px-5 -mt-8">
+        {/* Additional services grid */}
         <motion.div className="bg-card rounded-2xl shadow-card p-4 mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <h3 className="font-display font-bold text-foreground text-sm mb-3">Serviços</h3>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { icon: UserCog, label: "Troca Titularidade", action: () => setSubPage("titularidade") },
+              { icon: History, label: "Consumo 12m", action: () => setSubPage("consumo12") },
+              { icon: DropletIcon, label: "Religar Água", action: () => setSubPage("religar") },
+              { icon: Plug, label: "Nova Ligação", action: () => setSubPage("nova_ligacao") },
+              { icon: TestTube, label: "Qualidade Água", action: () => setSubPage("qualidade") },
+            ].map(s => (
+              <button key={s.label} onClick={s.action} className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors group">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <s.icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
+                </div>
+                <span className="text-[9px] font-body text-foreground text-center leading-tight">{s.label}</span>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div className="bg-card rounded-2xl shadow-card p-4 mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-display font-bold text-foreground text-sm">Estatísticas</h3>
             <span className="text-[10px] text-cinza-medio font-body bg-muted px-2 py-1 rounded-full">Mensal</span>

@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Plus, ThumbsUp, BookmarkPlus, Share2, Search, Lightbulb } from "lucide-react";
+import { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Plus, ThumbsUp, BookmarkPlus, Share2, Search, Lightbulb, X, Camera, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
+import { toast } from "@/hooks/use-toast";
 
 const categories = ["Economia de Água", "Reuso de Chuva", "Limpeza de Caixa d'Água", "Horta e Jardim"];
 
@@ -20,12 +21,33 @@ const CommunityPage = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showNewPost, setShowNewPost] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newCategory, setNewCategory] = useState(categories[0]);
+  const catScrollRef = useRef<HTMLDivElement>(null);
 
   const filtered = tips.filter((t) => {
     const matchFilter = !filter || t.tags.includes(filter);
-    const matchSearch = !searchQuery || t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.desc.toLowerCase().includes(searchQuery.toLowerCase()) || t.author.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchSearch = !searchQuery ||
+      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.bairro.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchFilter && matchSearch;
   });
+
+  const handleNewPost = () => {
+    if (!newTitle.trim() || !newDesc.trim()) {
+      toast({ title: "Preencha todos os campos", variant: "destructive" });
+      return;
+    }
+    toast({ title: "Dica publicada! 🎉", description: "Obrigado por compartilhar!" });
+    setShowNewPost(false);
+    setNewTitle("");
+    setNewDesc("");
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -36,7 +58,7 @@ const CommunityPage = () => {
           <ThemeToggle className="text-primary-foreground" />
         </div>
         <div className="relative">
-          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar dicas..." className="w-full py-2.5 px-4 pr-10 rounded-xl bg-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 font-body text-sm border-none outline-none" />
+          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar dicas, autores, categorias..." className="w-full py-2.5 px-4 pr-10 rounded-xl bg-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 font-body text-sm border-none outline-none" />
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/50" strokeWidth={1.5} />
         </div>
       </div>
@@ -47,10 +69,19 @@ const CommunityPage = () => {
           <p className="font-body text-sm text-foreground">Como ler seu hidrômetro corretamente</p>
         </div>
 
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          {categories.map((c) => (
-            <button key={c} onClick={() => setFilter(filter === c ? null : c)} className={`px-3 py-1.5 rounded-full text-[10px] font-display font-medium whitespace-nowrap transition-colors ${filter === c ? "gradient-primary text-primary-foreground" : "bg-card shadow-card text-cinza-medio"}`}>{c}</button>
-          ))}
+        {/* Horizontal scrollable categories with fade */}
+        <div className="relative mb-4">
+          <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          <div
+            ref={catScrollRef}
+            className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 px-1"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            {categories.map((c) => (
+              <button key={c} onClick={() => setFilter(filter === c ? null : c)} className={`px-3 py-1.5 rounded-full text-[10px] font-display font-medium whitespace-nowrap flex-shrink-0 transition-colors ${filter === c ? "gradient-primary text-primary-foreground" : "bg-card shadow-card text-cinza-medio"}`}>{c}</button>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -78,9 +109,34 @@ const CommunityPage = () => {
         </div>
       </div>
 
-      <button className="fixed bottom-20 right-5 w-14 h-14 rounded-full gradient-primary shadow-card-hover flex items-center justify-center z-30">
+      {/* New post FAB */}
+      <button onClick={() => setShowNewPost(true)} className="fixed bottom-20 right-5 w-14 h-14 rounded-full gradient-primary shadow-card-hover flex items-center justify-center z-30">
         <Plus className="w-6 h-6 text-primary-foreground" strokeWidth={1.5} />
       </button>
+
+      {/* New post modal */}
+      <AnimatePresence>
+        {showNewPost && (
+          <motion.div className="fixed inset-0 z-50 bg-foreground/30 flex items-end" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowNewPost(false)}>
+            <motion.div className="w-full bg-card rounded-t-3xl p-6" initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-display font-bold text-foreground text-lg">Nova Dica</h3>
+                <button onClick={() => setShowNewPost(false)}><X className="w-5 h-5 text-cinza-medio" /></button>
+              </div>
+              <div className="space-y-3">
+                <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Título da dica" className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" />
+                <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none">
+                  {categories.map(c => <option key={c}>{c}</option>)}
+                </select>
+                <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Compartilhe sua dica..." className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none resize-none" style={{ minHeight: 80 }} />
+                <button onClick={handleNewPost} className="w-full py-3 rounded-full gradient-primary text-primary-foreground font-display font-semibold flex items-center justify-center gap-2">
+                  <Send className="w-4 h-4" /> Publicar Dica
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -23,6 +23,7 @@ import EducaSaneamentoPage from "./pages/EducaSaneamentoPage";
 import TourVirtualPage from "./pages/TourVirtualPage";
 import VoceSaneamentoPage from "./pages/VoceSaneamentoPage";
 import NotFound from "./pages/NotFound";
+import AIChatAssistant from "./components/AIChatAssistant";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const AppContent = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideTabs && <BottomTabBar />}
+      {!hideTabs && <AIChatAssistant />}
     </>
   );
 };

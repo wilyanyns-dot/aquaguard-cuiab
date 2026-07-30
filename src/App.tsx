@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +10,6 @@ import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
 import ConsumptionPage from "./pages/ConsumptionPage";
 import MapPage from "./pages/MapPage";
-import NewsPage from "./pages/NewsPage";
 import RankingPage from "./pages/RankingPage";
 import DictionaryPage from "./pages/DictionaryPage";
 import CommunityPage from "./pages/CommunityPage";
@@ -41,7 +40,7 @@ const AppContent = () => {
         <Route path="/home" element={<HomePage />} />
         <Route path="/consumo" element={<ConsumptionPage />} />
         <Route path="/mapa" element={<MapPage />} />
-        <Route path="/noticias" element={<NewsPage />} />
+        <Route path="/noticias" element={<Navigate to="/home" replace />} />
         <Route path="/ranking" element={<RankingPage />} />
         <Route path="/dicionario" element={<DictionaryPage />} />
         <Route path="/comunidade" element={<CommunityPage />} />

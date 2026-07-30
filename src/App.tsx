@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { UserProvider } from "@/contexts/UserContext";
+import { CommunityProvider } from "@/contexts/CommunityContext";
 import BottomTabBar from "@/components/BottomTabBar";
 import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
@@ -21,6 +22,8 @@ import OnboardingPage from "./pages/OnboardingPage";
 import EducaSaneamentoPage from "./pages/EducaSaneamentoPage";
 import TourVirtualPage from "./pages/TourVirtualPage";
 import VoceSaneamentoPage from "./pages/VoceSaneamentoPage";
+import ProfilePage from "./pages/ProfilePage";
+import AuthorFeedPage from "./pages/AuthorFeedPage";
 import NotFound from "./pages/NotFound";
 import AIChatAssistant from "./components/AIChatAssistant";
 
@@ -44,6 +47,8 @@ const AppContent = () => {
         <Route path="/ranking" element={<RankingPage />} />
         <Route path="/dicionario" element={<DictionaryPage />} />
         <Route path="/comunidade" element={<CommunityPage />} />
+        <Route path="/comunidade/autor/:author" element={<AuthorFeedPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/conquistas" element={<AchievementsPage />} />
         <Route path="/portal" element={<PortalPage />} />
         <Route path="/pagamentos" element={<PagamentosPage />} />
@@ -62,6 +67,7 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <UserProvider>
+      <CommunityProvider>
       <ThemeProvider>
         <TooltipProvider>
           <BrowserRouter>
@@ -69,6 +75,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
+      </CommunityProvider>
     </UserProvider>
   </QueryClientProvider>
 );

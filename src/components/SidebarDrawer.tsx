@@ -51,7 +51,11 @@ const SidebarDrawer = ({ open, onClose }: SidebarDrawerProps) => {
 
             {/* User info */}
             <div className="px-6 py-4 border-b border-border">
-              <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleNav("/perfil")}
+                aria-label="Abrir sessão do usuário"
+                className="flex items-center gap-3 w-full text-left"
+              >
                 <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
                   <span className="text-primary-foreground font-display font-bold text-sm">{user?.nome?.[0] || "U"}</span>
                 </div>
@@ -59,7 +63,7 @@ const SidebarDrawer = ({ open, onClose }: SidebarDrawerProps) => {
                   <p className="font-display font-bold text-foreground text-sm">{user?.nome || "Usuário"}</p>
                   <span className="text-[10px] font-body text-cinza-medio">{user?.email || ""}</span>
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* Menu items */}

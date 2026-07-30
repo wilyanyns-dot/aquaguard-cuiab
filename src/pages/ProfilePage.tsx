@@ -36,9 +36,10 @@ const ProfilePage = () => {
   const [notifications, setNotifications] = useState(() => localStorage.getItem("saneamento-notif") !== "false");
 
   const saveProfile = () => {
-    setUser({ ...(user as never), ...form } as never);
+    setUser({ ...(user ?? ({} as never)), ...form });
     toast({ title: "Dados salvos!", description: "Seu perfil foi atualizado." });
   };
+
 
   const toggleA11y = (key: keyof A11yPrefs) => {
     const next = { ...a11y, [key]: !a11y[key] };

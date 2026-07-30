@@ -5,12 +5,14 @@ interface SplashScreenProps {
   onComplete: () => void;
 }
 
+type Phase = "drop" | "half" | "full" | "exit";
+
 const WaterDrop = () => (
-  <svg viewBox="0 0 120 160" className="w-24 h-32">
+  <svg viewBox="0 0 120 160" className="w-20 h-28" aria-hidden="true">
     <defs>
       <linearGradient id="splashDropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="hsl(202, 70%, 65%)" />
-        <stop offset="100%" stopColor="hsl(202, 62%, 50%)" />
+        <stop offset="100%" stopColor="hsl(210, 70%, 45%)" />
       </linearGradient>
     </defs>
     <path
@@ -33,90 +35,105 @@ const Bubble = ({ delay, x, size }: { delay: number; x: number; size: number }) 
     className="absolute rounded-full border border-white/40"
     style={{ left: `${x}%`, bottom: 0, width: size, height: size }}
     initial={{ y: 0, opacity: 0 }}
-    animate={{ y: -500, opacity: [0, 0.6, 0] }}
-    transition={{ duration: 2, delay, ease: "easeOut" }}
+    animate={{ y: -420, opacity: [0, 0.6, 0] }}
+    transition={{ duration: 2.4, delay, ease: "easeOut", repeat: Infinity }}
   />
 );
 
 const SplashScreen = ({ onComplete }: SplashScreenProps) => {
-  const [phase, setPhase] = useState<"idle" | "pulse" | "rise" | "exit">("idle");
+  const [phase, setPhase] = useState<Phase>("drop");
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("pulse"), 600);
-    const t2 = setTimeout(() => setPhase("rise"), 2800);
-    const t3 = setTimeout(() => setPhase("exit"), 4200);
-    const t4 = setTimeout(onComplete, 4700);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    const timers = [
+      setTimeout(() => setPhase("half"), 1400),
+      setTimeout(() => setPhase("full"), 2900),
+      setTimeout(() => setPhase("exit"), 4300),
+      setTimeout(onComplete, 4900),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [onComplete]);
+
+  const waveHeight = phase === "drop" ? "0%" : phase === "half" ? "50%" : "120%";
 
   return (
     <AnimatePresence>
       {phase !== "exit" && (
         <motion.div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-50 overflow-hidden bg-white"
+          role="status"
+          aria-label="Carregando o aplicativo Saneamento Cuiabá"
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
         >
-          {/* White top half */}
-          <div className="absolute inset-0" style={{ background: "#F9FBFC" }} />
-
-          {/* Blue bottom half with wave separator — sits behind the drop */}
-          <div className="absolute bottom-0 left-0 right-0" style={{ height: "50%" }}>
-            <svg viewBox="0 0 1440 120" className="absolute -top-[60px] left-0 w-full animate-wave-slow" preserveAspectRatio="none" style={{ height: "60px" }}>
-              <path d="M0,40 C180,80 360,0 540,40 C720,80 900,10 1080,50 C1200,70 1320,30 1440,50 L1440,120 L0,120Z" fill="hsl(202, 62%, 55%)" />
-            </svg>
-            <div className="w-full h-full" style={{ background: "linear-gradient(180deg, hsl(202, 62%, 55%) 0%, hsl(210, 70%, 40%) 100%)" }} />
+          {/* Drop falling to the centre and merging with the liquid */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.3, y: -160 }}
+              animate={
+                phase === "drop"
+                  ? { opacity: 1, scale: 1, y: 0 }
+                  : { opacity: 0, scale: 1.6, y: 40 }
+              }
+              transition={{ duration: phase === "drop" ? 1.1 : 0.6, ease: "easeOut" }}
+            >
+              <WaterDrop />
+            </motion.div>
           </div>
 
-          {/* Water drop centered */}
-          <motion.div
-            className={`relative z-10 ${phase === "pulse" ? "animate-drop-pulse" : ""}`}
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <WaterDrop />
-          </motion.div>
+          {/* Impact ripple */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            {phase !== "drop" && (
+              <motion.span
+                className="block rounded-full border-2 border-[hsl(202,62%,55%)]"
+                initial={{ width: 40, height: 40, opacity: 0.7 }}
+                animate={{ width: 320, height: 320, opacity: 0 }}
+                transition={{ duration: 1.1, ease: "easeOut" }}
+              />
+            )}
+          </div>
 
-          {/* Rising wave overlay */}
+          {/* Liquid that rises: half of the screen, then the whole viewport */}
           <motion.div
-            className="absolute bottom-0 left-0 right-0 z-20"
-            initial={{ y: "100%" }}
-            animate={phase === "rise" ? { y: "-10%" } : { y: "100%" }}
-            transition={{ duration: 1.4, ease: "easeInOut" }}
+            className="absolute bottom-0 left-0 right-0"
+            initial={{ height: "0%" }}
+            animate={{ height: waveHeight }}
+            transition={{ duration: 1.5, ease: [0.45, 0, 0.2, 1] }}
           >
-            {/* Wave crest */}
-            <svg viewBox="0 0 1440 100" className="w-full" preserveAspectRatio="none" style={{ height: "50px", display: "block" }}>
-              <path d="M0,60 C240,10 480,90 720,40 C960,0 1200,70 1440,30 L1440,100 L0,100Z" fill="hsl(202, 62%, 55%)" />
+            <svg
+              viewBox="0 0 1440 100"
+              className="absolute -top-[44px] left-0 w-full animate-wave-slow"
+              preserveAspectRatio="none"
+              style={{ height: "48px" }}
+              aria-hidden="true"
+            >
+              <path
+                d="M0,60 C240,10 480,90 720,40 C960,0 1200,70 1440,30 L1440,100 L0,100Z"
+                fill="hsl(202, 62%, 55%)"
+              />
             </svg>
-            <div className="w-full" style={{ height: "120vh", background: "linear-gradient(180deg, hsl(202, 62%, 55%) 0%, hsl(210, 70%, 35%) 100%)" }}>
-              {phase === "rise" && (
-                <>
-                  <Bubble delay={0} x={15} size={10} />
-                  <Bubble delay={0.15} x={35} size={14} />
-                  <Bubble delay={0.3} x={55} size={8} />
-                  <Bubble delay={0.45} x={75} size={12} />
-                  <Bubble delay={0.2} x={90} size={6} />
-                  <Bubble delay={0.5} x={25} size={9} />
-                </>
-              )}
+            <div
+              className="w-full h-full relative overflow-hidden"
+              style={{ background: "linear-gradient(180deg, hsl(202, 62%, 55%) 0%, hsl(210, 70%, 35%) 100%)" }}
+            >
+              <Bubble delay={0} x={15} size={10} />
+              <Bubble delay={0.4} x={35} size={14} />
+              <Bubble delay={0.8} x={55} size={8} />
+              <Bubble delay={0.2} x={75} size={12} />
+              <Bubble delay={0.6} x={90} size={6} />
             </div>
           </motion.div>
 
-          {/* Enter button */}
-          <motion.button
-            className="absolute bottom-24 z-30 px-14 py-3 rounded-full bg-white shadow-lg font-display font-semibold text-primary text-base"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: phase === "rise" ? 0 : 1, y: phase === "rise" ? 40 : 0 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-            onClick={() => {
-              setPhase("rise");
-              setTimeout(() => setPhase("exit"), 1400);
-              setTimeout(onComplete, 1900);
-            }}
+          {/* Brand reveal once the liquid fills the screen */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: phase === "full" ? 1 : 0 }}
+            transition={{ duration: 0.8, delay: phase === "full" ? 0.6 : 0 }}
           >
-            Entrar
-          </motion.button>
+            <p className="font-display font-bold text-2xl text-white tracking-wide">
+              Saneamento Cuiabá
+            </p>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

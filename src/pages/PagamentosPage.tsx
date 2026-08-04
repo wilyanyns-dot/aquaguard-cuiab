@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useUser } from "@/contexts/UserContext";
 import { toast } from "@/hooks/use-toast";
+import { COUPONS, levelForXp, loadGamification, xpFromSavings } from "@/lib/gamification";
 
 const allTransactions = [
   { id: 1, title: "Fatura de Março", date: "15/03/2025", value: -85.9, type: "expense" },
@@ -67,7 +68,19 @@ const PagamentosPage = () => {
   const [novaForm, setNovaForm] = useState({ endereco: "", cep: "", tipo: "residencial" });
 
   const balance = 85.9;
-  const totalSaved = 17.5;
+  const gami = loadGamification();
+  const rankXp = xpFromSavings(15, gami.contributions);
+  const rankLevel = levelForXp(rankXp);
+  const redeemedCoupons = COUPONS.filter(c => gami.redeemed.includes(c.id));
+  const couponTotal = redeemedCoupons.reduce((s, c) => s + c.value, 0);
+  const annualSavings = [
+    { mes: "Abr", value: 6 }, { mes: "Mai", value: 8 }, { mes: "Jun", value: 7 },
+    { mes: "Jul", value: 9 }, { mes: "Ago", value: 11 }, { mes: "Set", value: 10 },
+    { mes: "Out", value: 10 }, { mes: "Nov", value: 12 }, { mes: "Dez", value: 8 },
+    { mes: "Jan", value: 13 }, { mes: "Fev", value: 10 }, { mes: "Mar", value: 17.5 },
+  ];
+  const annualTotal = annualSavings.reduce((s, d) => s + d.value, 0) + couponTotal;
+  const totalSaved = 17.5 + couponTotal;
   const hasPendencia = faturas.some(f => f.status === "pendente");
   const filtered = filter === "all" ? allTransactions.slice(0, 5) : allTransactions.filter((t) => t.type === filter).slice(0, 5);
 
@@ -517,6 +530,64 @@ const PagamentosPage = () => {
               );
             })}
           </div>
+        </motion.div>
+
+        {/* Descontos do Ranking */}
+        <motion.div className="bg-card rounded-2xl shadow-card p-4 mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-display font-bold text-foreground text-sm">Descontos do Ranking</h3>
+            <button onClick={() => navigate("/ranking")} className="text-[10px] font-display text-primary">Ver ranking</button>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-verde-sucesso/10 mb-3">
+            <div className="w-10 h-10 rounded-full bg-verde-sucesso/20 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-verde-sucesso" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-bold text-sm text-foreground">Nível {rankLevel.name} · {rankLevel.discount}% automático</p>
+              <span className="text-[10px] font-body text-cinza-medio">Aplicado direto na próxima fatura pela sua economia de água</span>
+            </div>
+          </div>
+          {redeemedCoupons.length > 0 ? (
+            <div className="space-y-1.5">
+              {redeemedCoupons.map(c => (
+                <div key={c.id} className="flex justify-between items-center py-1.5 border-b border-border last:border-0">
+                  <span className="font-body text-xs text-cinza-medio">{c.title}</span>
+                  <span className="font-display font-bold text-xs text-verde-sucesso">-R$ {c.value.toFixed(2)}</span>
+                </div>
+              ))}
+              <div className="flex justify-between pt-2">
+                <span className="font-body text-xs font-semibold text-foreground">Total em cupons</span>
+                <span className="font-display font-bold text-sm text-verde-sucesso">-R$ {couponTotal.toFixed(2)}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-[10px] font-body text-cinza-medio">Nenhum cupom resgatado ainda. Troque seu XP por descontos no Ranking.</p>
+          )}
+        </motion.div>
+
+        {/* Evolução anual da economia */}
+        <motion.div className="bg-card rounded-2xl shadow-card p-4 mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display font-bold text-foreground text-sm">Evolução da Economia (R$)</h3>
+            <span className="text-[10px] text-cinza-medio font-body bg-muted px-2 py-1 rounded-full">12 meses</span>
+          </div>
+          <div className="flex items-end gap-1.5 h-28">
+            {annualSavings.map((d, i) => {
+              const maxS = Math.max(...annualSavings.map(a => a.value));
+              return (
+                <div key={d.mes} className="flex-1 flex flex-col items-center gap-1">
+                  <span className="text-[8px] font-display text-verde-sucesso">{d.value}</span>
+                  <div className="w-full relative" style={{ height: "72px" }}>
+                    <motion.div className="absolute bottom-0 w-full rounded-t-md bg-verde-sucesso/80" initial={{ height: 0 }} animate={{ height: `${(d.value / maxS) * 100}%` }} transition={{ delay: 0.2 + i * 0.03 }} />
+                  </div>
+                  <span className="text-[8px] text-cinza-medio font-body">{d.mes}</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[10px] font-body text-cinza-medio mt-2">
+            Total economizado no período: <span className="text-verde-sucesso font-semibold">R$ {annualTotal.toFixed(2)}</span>
+          </p>
         </motion.div>
 
         <div className="flex items-center justify-between mb-3">

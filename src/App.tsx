@@ -26,6 +26,9 @@ import ProfilePage from "./pages/ProfilePage";
 import AuthorFeedPage from "./pages/AuthorFeedPage";
 import NotFound from "./pages/NotFound";
 import AIChatAssistant from "./components/AIChatAssistant";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
+import LibrasWidget from "@/components/a11y/LibrasWidget";
+
 
 const queryClient = new QueryClient();
 

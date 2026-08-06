@@ -122,7 +122,7 @@ const OnboardingPage = () => {
               <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${i <= step ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 text-primary-foreground/50"}`}>
                 {i < step ? <CheckCircle className="w-5 h-5" strokeWidth={1.5} /> : <s.icon className="w-4 h-4" strokeWidth={1.5} />}
               </div>
-              {i < 2 && <div className={`w-8 h-0.5 ${i < step ? "bg-primary-foreground" : "bg-primary-foreground/20"}`} />}
+              {i < steps.length - 1 && <div className={`w-6 h-0.5 ${i < step ? "bg-primary-foreground" : "bg-primary-foreground/20"}`} />}
             </div>
           ))}
         </div>

@@ -85,7 +85,7 @@ const OnboardingPage = () => {
     return Object.keys(e).length === 0;
   };
 
-  const next = () => { if (validateStep()) setStep((s) => Math.min(s + 1, 2)); };
+  const next = () => { if (validateStep()) setStep((s) => Math.min(s + 1, 3)); };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   const finish = () => {
@@ -100,7 +100,9 @@ const OnboardingPage = () => {
     { icon: User, title: "Identificação Pessoal" },
     { icon: MapPin, title: "Localização" },
     { icon: CreditCard, title: "Consumo e Pagamento" },
+    { icon: Accessibility, title: "Acessibilidade" },
   ];
+
 
   const inputClass = (field: string) =>
     `w-full py-3 px-4 rounded-xl bg-card shadow-card font-body text-sm text-foreground border ${errors[field] ? "border-destructive" : "border-border"} outline-none focus:ring-2 focus:ring-primary/30 transition-all`;

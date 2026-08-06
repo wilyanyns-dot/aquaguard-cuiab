@@ -42,6 +42,8 @@ const institucional = [
 ];
 
 const PortalPage = () => {
+  const a11y = useAccessibility();
+
   const navigate = useNavigate();
   const [tab, setTab] = useState<"videos" | "quem-somos">("videos");
   const [activeVideo, setActiveVideo] = useState<Video | null>(null);

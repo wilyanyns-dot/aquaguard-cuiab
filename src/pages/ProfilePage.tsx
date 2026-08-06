@@ -115,26 +115,10 @@ const ProfilePage = () => {
             <h2 className="font-display font-bold text-foreground text-base">Preferências de Acessibilidade</h2>
           </div>
           <div className="space-y-2">
-            {([
-              { key: "baixaVisao", label: "Modo Baixa Visão / Alto Contraste" },
-              { key: "libras", label: "Modo LIBRAS e Legendas" },
-              { key: "leitura", label: "Leitura de tela (Text-to-Speech)" },
-            ] as const).map((o) => (
-              <button
-                key={o.key}
-                onClick={() => toggleA11y(o.key)}
-                role="switch"
-                aria-checked={a11y[o.key]}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-muted"
-              >
-                <span className="font-body text-sm text-foreground text-left">{o.label}</span>
-                <span className={`w-11 h-6 rounded-full flex items-center px-0.5 transition-colors ${a11y[o.key] ? "bg-primary" : "bg-cinza-claro/40"}`}>
-                  <span className={`w-5 h-5 rounded-full bg-card transition-transform ${a11y[o.key] ? "translate-x-5" : ""}`} />
-                </span>
-              </button>
-            ))}
+            <AccessibilityOptions />
           </div>
         </section>
+
 
         {/* Salvos */}
         <section className="bg-card rounded-2xl shadow-card p-4">

@@ -218,7 +218,7 @@ const OnboardingPage = () => {
             <ChevronLeft className="w-4 h-4" /> Anterior
           </button>
         )}
-        {step < 2 ? (
+        {step < 3 ? (
           <button onClick={next} className="flex-1 py-3.5 rounded-full gradient-primary text-primary-foreground font-display font-semibold flex items-center justify-center gap-1 shadow-card-hover">
             Próximo <ChevronRight className="w-4 h-4" />
           </button>

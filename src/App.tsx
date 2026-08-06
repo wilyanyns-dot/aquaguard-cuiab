@@ -63,9 +63,11 @@ const AppContent = () => {
       </Routes>
       {!hideTabs && <BottomTabBar />}
       {!hideTabs && <AIChatAssistant />}
+      <LibrasWidget />
     </>
   );
 };
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, ChevronLeft, User, MapPin, CreditCard, CheckCircle } from "lucide-react";
+import { ChevronRight, ChevronLeft, User, MapPin, CreditCard, CheckCircle, Accessibility } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import AccessibilityOptions from "@/components/a11y/AccessibilityOptions";
+
 
 const banks = ["Nubank", "Itaú", "Bradesco", "Banco do Brasil", "Santander", "Inter", "Caixa", "Sicoob", "C6 Bank", "PicPay"];
 

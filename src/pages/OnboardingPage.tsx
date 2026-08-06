@@ -194,6 +194,19 @@ const OnboardingPage = () => {
                 </div>
               </>
             )}
+            {step === 3 && (
+              <section aria-labelledby="a11y-title">
+                <h2 id="a11y-title" className="font-display font-bold text-foreground text-lg">
+                  Você precisa de recursos de acessibilidade?
+                </h2>
+                <p className="font-body text-xs text-muted-foreground mt-1 mb-4">
+                  Toque nas opções que combinam com você. Tudo é aplicado na hora e fica salvo para os próximos acessos.
+                  Se não precisar de nenhuma, é só concluir.
+                </p>
+                <AccessibilityOptions />
+              </section>
+            )}
+
           </motion.div>
         </AnimatePresence>
       </div>

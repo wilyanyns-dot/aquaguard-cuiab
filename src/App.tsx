@@ -26,6 +26,9 @@ import ProfilePage from "./pages/ProfilePage";
 import AuthorFeedPage from "./pages/AuthorFeedPage";
 import NotFound from "./pages/NotFound";
 import AIChatAssistant from "./components/AIChatAssistant";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
+import LibrasWidget from "@/components/a11y/LibrasWidget";
+
 
 const queryClient = new QueryClient();
 
@@ -60,24 +63,29 @@ const AppContent = () => {
       </Routes>
       {!hideTabs && <BottomTabBar />}
       {!hideTabs && <AIChatAssistant />}
+      <LibrasWidget />
     </>
   );
 };
 
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <UserProvider>
-      <CommunityProvider>
-      <ThemeProvider>
-        <TooltipProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </TooltipProvider>
-      </ThemeProvider>
-      </CommunityProvider>
-    </UserProvider>
+    <AccessibilityProvider>
+      <UserProvider>
+        <CommunityProvider>
+          <ThemeProvider>
+            <TooltipProvider>
+              <BrowserRouter>
+                <AppContent />
+              </BrowserRouter>
+            </TooltipProvider>
+          </ThemeProvider>
+        </CommunityProvider>
+      </UserProvider>
+    </AccessibilityProvider>
   </QueryClientProvider>
 );
+
 
 export default App;

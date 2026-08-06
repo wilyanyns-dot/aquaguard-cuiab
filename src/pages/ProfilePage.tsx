@@ -7,17 +7,8 @@ import { useUser } from "@/contexts/UserContext";
 import { useCommunity } from "@/contexts/CommunityContext";
 import { toast } from "@/hooks/use-toast";
 
-const A11Y_KEY = "saneamento-a11y";
+import AccessibilityOptions from "@/components/a11y/AccessibilityOptions";
 
-type A11yPrefs = { baixaVisao: boolean; libras: boolean; leitura: boolean };
-
-const loadA11y = (): A11yPrefs => {
-  try {
-    return { baixaVisao: false, libras: false, leitura: false, ...JSON.parse(localStorage.getItem(A11Y_KEY) || "{}") };
-  } catch {
-    return { baixaVisao: false, libras: false, leitura: false };
-  }
-};
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -32,7 +23,6 @@ const ProfilePage = () => {
     telefone: user?.telefone || "",
     endereco: user?.endereco || "",
   });
-  const [a11y, setA11y] = useState<A11yPrefs>(loadA11y);
   const [notifications, setNotifications] = useState(() => localStorage.getItem("saneamento-notif") !== "false");
 
   const saveProfile = () => {
@@ -40,13 +30,6 @@ const ProfilePage = () => {
     toast({ title: "Dados salvos!", description: "Seu perfil foi atualizado." });
   };
 
-
-  const toggleA11y = (key: keyof A11yPrefs) => {
-    const next = { ...a11y, [key]: !a11y[key] };
-    setA11y(next);
-    localStorage.setItem(A11Y_KEY, JSON.stringify(next));
-    window.dispatchEvent(new CustomEvent("a11y-prefs-changed", { detail: next }));
-  };
 
   const onPickAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -132,26 +115,10 @@ const ProfilePage = () => {
             <h2 className="font-display font-bold text-foreground text-base">Preferências de Acessibilidade</h2>
           </div>
           <div className="space-y-2">
-            {([
-              { key: "baixaVisao", label: "Modo Baixa Visão / Alto Contraste" },
-              { key: "libras", label: "Modo LIBRAS e Legendas" },
-              { key: "leitura", label: "Leitura de tela (Text-to-Speech)" },
-            ] as const).map((o) => (
-              <button
-                key={o.key}
-                onClick={() => toggleA11y(o.key)}
-                role="switch"
-                aria-checked={a11y[o.key]}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-muted"
-              >
-                <span className="font-body text-sm text-foreground text-left">{o.label}</span>
-                <span className={`w-11 h-6 rounded-full flex items-center px-0.5 transition-colors ${a11y[o.key] ? "bg-primary" : "bg-cinza-claro/40"}`}>
-                  <span className={`w-5 h-5 rounded-full bg-card transition-transform ${a11y[o.key] ? "translate-x-5" : ""}`} />
-                </span>
-              </button>
-            ))}
+            <AccessibilityOptions />
           </div>
         </section>
+
 
         {/* Salvos */}
         <section className="bg-card rounded-2xl shadow-card p-4">

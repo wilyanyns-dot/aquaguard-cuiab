@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, ChevronLeft, User, MapPin, CreditCard, CheckCircle } from "lucide-react";
+import { ChevronRight, ChevronLeft, User, MapPin, CreditCard, CheckCircle, Accessibility } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import AccessibilityOptions from "@/components/a11y/AccessibilityOptions";
+
 
 const banks = ["Nubank", "Itaú", "Bradesco", "Banco do Brasil", "Santander", "Inter", "Caixa", "Sicoob", "C6 Bank", "PicPay"];
 
@@ -83,7 +85,7 @@ const OnboardingPage = () => {
     return Object.keys(e).length === 0;
   };
 
-  const next = () => { if (validateStep()) setStep((s) => Math.min(s + 1, 2)); };
+  const next = () => { if (validateStep()) setStep((s) => Math.min(s + 1, 3)); };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   const finish = () => {
@@ -98,7 +100,9 @@ const OnboardingPage = () => {
     { icon: User, title: "Identificação Pessoal" },
     { icon: MapPin, title: "Localização" },
     { icon: CreditCard, title: "Consumo e Pagamento" },
+    { icon: Accessibility, title: "Acessibilidade" },
   ];
+
 
   const inputClass = (field: string) =>
     `w-full py-3 px-4 rounded-xl bg-card shadow-card font-body text-sm text-foreground border ${errors[field] ? "border-destructive" : "border-border"} outline-none focus:ring-2 focus:ring-primary/30 transition-all`;
@@ -118,7 +122,7 @@ const OnboardingPage = () => {
               <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${i <= step ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 text-primary-foreground/50"}`}>
                 {i < step ? <CheckCircle className="w-5 h-5" strokeWidth={1.5} /> : <s.icon className="w-4 h-4" strokeWidth={1.5} />}
               </div>
-              {i < 2 && <div className={`w-8 h-0.5 ${i < step ? "bg-primary-foreground" : "bg-primary-foreground/20"}`} />}
+              {i < steps.length - 1 && <div className={`w-6 h-0.5 ${i < step ? "bg-primary-foreground" : "bg-primary-foreground/20"}`} />}
             </div>
           ))}
         </div>
@@ -190,6 +194,19 @@ const OnboardingPage = () => {
                 </div>
               </>
             )}
+            {step === 3 && (
+              <section aria-labelledby="a11y-title">
+                <h2 id="a11y-title" className="font-display font-bold text-foreground text-lg">
+                  Você precisa de recursos de acessibilidade?
+                </h2>
+                <p className="font-body text-xs text-muted-foreground mt-1 mb-4">
+                  Toque nas opções que combinam com você. Tudo é aplicado na hora e fica salvo para os próximos acessos.
+                  Se não precisar de nenhuma, é só concluir.
+                </p>
+                <AccessibilityOptions />
+              </section>
+            )}
+
           </motion.div>
         </AnimatePresence>
       </div>
@@ -201,7 +218,7 @@ const OnboardingPage = () => {
             <ChevronLeft className="w-4 h-4" /> Anterior
           </button>
         )}
-        {step < 2 ? (
+        {step < 3 ? (
           <button onClick={next} className="flex-1 py-3.5 rounded-full gradient-primary text-primary-foreground font-display font-semibold flex items-center justify-center gap-1 shadow-card-hover">
             Próximo <ChevronRight className="w-4 h-4" />
           </button>

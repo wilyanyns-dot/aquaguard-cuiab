@@ -194,3 +194,72 @@
 .animate-float-up { animation: float-up 3s ease-out forwards; }
 .animate-wave-rise { animation: wave-rise 1.5s ease-in-out forwards; }
 .animate-count-up { animation: count-up 0.6s ease-out forwards; }
+
+/* ================= Acessibilidade (A11y) ================= */
+
+/* Alto contraste — Deficiência visual / baixa visão */
+.a11y-contrast {
+  --background: 0 0% 0%;
+  --foreground: 60 100% 50%;
+  --card: 0 0% 7%;
+  --card-foreground: 60 100% 50%;
+  --popover: 0 0% 7%;
+  --popover-foreground: 60 100% 50%;
+  --primary: 60 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 195 100% 60%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 100%;
+  --accent: 195 100% 60%;
+  --accent-foreground: 0 0% 0%;
+  --border: 60 100% 50%;
+  --input: 60 100% 50%;
+  --ring: 60 100% 50%;
+  --cinza-medio: 0 0% 100%;
+  --cinza-claro: 0 0% 80%;
+  --gradient-primary: linear-gradient(135deg, hsl(60 100% 50%), hsl(48 100% 50%));
+  --gradient-header: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 10%));
+  --shadow-card: 0 0 0 2px hsl(60 100% 50% / 0.7);
+  --shadow-card-hover: 0 0 0 3px hsl(60 100% 50%);
+}
+.a11y-contrast .gradient-header,
+.a11y-contrast .gradient-header .text-primary-foreground,
+.a11y-contrast .gradient-header h1,
+.a11y-contrast .gradient-header p {
+  color: hsl(60 100% 50%);
+}
+
+.a11y-contrast img,
+.a11y-contrast video {
+  filter: contrast(1.15);
+}
+
+/* Espaçamento otimizado */
+.a11y-spacing body {
+  letter-spacing: 0.02em;
+  line-height: 1.7;
+}
+.a11y-spacing button,
+.a11y-spacing a[href],
+.a11y-spacing [role="button"] {
+  min-height: 44px;
+}
+
+/* Foco sempre visível para leitores de tela e navegação por teclado */
+.a11y-contrast :focus-visible,
+.a11y-icons :focus-visible {
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Interface por ícones — baixa alfabetização */
+.a11y-icons svg {
+  transform: scale(1.1);
+}
+
+/* Modo legendas — alertas visuais no lugar de sons */
+.a11y-captions [data-audio-alert] {
+  animation: pulse 1.2s ease-in-out 2;
+}
+

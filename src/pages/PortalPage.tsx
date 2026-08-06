@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Play, X, Target, Eye, HeartHandshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
+
 
 interface Video {
   id: string;
@@ -40,6 +42,8 @@ const institucional = [
 ];
 
 const PortalPage = () => {
+  const a11y = useAccessibility();
+
   const navigate = useNavigate();
   const [tab, setTab] = useState<"videos" | "quem-somos">("videos");
   const [activeVideo, setActiveVideo] = useState<Video | null>(null);
@@ -171,6 +175,13 @@ const PortalPage = () => {
                   allowFullScreen
                 />
               </div>
+              {a11y.prefs.legendas && (
+                <p className="px-4 py-3 font-body text-xs text-muted-foreground">
+                  Legendas automáticas ativadas. Use o botão "CC" do player para escolher o idioma da legenda e a
+                  transcrição completa do vídeo.
+                </p>
+              )}
+
             </motion.div>
           </motion.div>
         )}

@@ -224,9 +224,12 @@
   --shadow-card-hover: 0 0 0 3px hsl(60 100% 50%);
 }
 .a11y-contrast .gradient-header,
-.a11y-contrast .text-primary-foreground {
+.a11y-contrast .gradient-header .text-primary-foreground,
+.a11y-contrast .gradient-header h1,
+.a11y-contrast .gradient-header p {
   color: hsl(60 100% 50%);
 }
+
 .a11y-contrast img,
 .a11y-contrast video {
   filter: contrast(1.15);

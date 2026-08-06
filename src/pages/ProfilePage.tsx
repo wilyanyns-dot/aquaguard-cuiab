@@ -7,17 +7,8 @@ import { useUser } from "@/contexts/UserContext";
 import { useCommunity } from "@/contexts/CommunityContext";
 import { toast } from "@/hooks/use-toast";
 
-const A11Y_KEY = "saneamento-a11y";
+import AccessibilityOptions from "@/components/a11y/AccessibilityOptions";
 
-type A11yPrefs = { baixaVisao: boolean; libras: boolean; leitura: boolean };
-
-const loadA11y = (): A11yPrefs => {
-  try {
-    return { baixaVisao: false, libras: false, leitura: false, ...JSON.parse(localStorage.getItem(A11Y_KEY) || "{}") };
-  } catch {
-    return { baixaVisao: false, libras: false, leitura: false };
-  }
-};
 
 const ProfilePage = () => {
   const navigate = useNavigate();

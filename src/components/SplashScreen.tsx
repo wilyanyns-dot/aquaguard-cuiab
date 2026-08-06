@@ -99,18 +99,23 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
             animate={{ height: waveHeight }}
             transition={{ duration: 1.5, ease: [0.45, 0, 0.2, 1] }}
           >
-            <svg
-              viewBox="0 0 1440 100"
-              className="absolute -top-[44px] left-0 w-full animate-wave-slow"
-              preserveAspectRatio="none"
-              style={{ height: "48px" }}
-              aria-hidden="true"
-            >
-              <path
-                d="M0,60 C240,10 480,90 720,40 C960,0 1200,70 1440,30 L1440,100 L0,100Z"
-                fill="hsl(202, 62%, 55%)"
-              />
-            </svg>
+            <div className="absolute bottom-full left-0 w-full h-[40px] overflow-hidden">
+              <motion.svg
+                viewBox="0 0 2880 100"
+                className="absolute top-0 left-0 h-full"
+                style={{ width: "200%" }}
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ duration: 6, ease: "linear", repeat: Infinity }}
+              >
+                <path
+                  d="M0,60 C240,10 480,90 720,40 C960,0 1200,70 1440,60 C1680,10 1920,90 2160,40 C2400,0 2640,70 2880,60 L2880,100 L0,100Z"
+                  fill="hsl(202, 62%, 55%)"
+                />
+              </motion.svg>
+            </div>
+
             <div
               className="w-full h-full relative overflow-hidden"
               style={{ background: "linear-gradient(180deg, hsl(202, 62%, 55%) 0%, hsl(210, 70%, 35%) 100%)" }}

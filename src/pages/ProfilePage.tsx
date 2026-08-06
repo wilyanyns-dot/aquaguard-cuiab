@@ -23,7 +23,6 @@ const ProfilePage = () => {
     telefone: user?.telefone || "",
     endereco: user?.endereco || "",
   });
-  const [a11y, setA11y] = useState<A11yPrefs>(loadA11y);
   const [notifications, setNotifications] = useState(() => localStorage.getItem("saneamento-notif") !== "false");
 
   const saveProfile = () => {
@@ -31,13 +30,6 @@ const ProfilePage = () => {
     toast({ title: "Dados salvos!", description: "Seu perfil foi atualizado." });
   };
 
-
-  const toggleA11y = (key: keyof A11yPrefs) => {
-    const next = { ...a11y, [key]: !a11y[key] };
-    setA11y(next);
-    localStorage.setItem(A11Y_KEY, JSON.stringify(next));
-    window.dispatchEvent(new CustomEvent("a11y-prefs-changed", { detail: next }));
-  };
 
   const onPickAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

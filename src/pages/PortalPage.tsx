@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Play, X, Target, Eye, HeartHandshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
+
 
 interface Video {
   id: string;

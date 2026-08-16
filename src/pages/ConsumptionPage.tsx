@@ -153,6 +153,24 @@ const ConsumptionPage = () => {
             <motion.div className="bg-card/90 backdrop-blur-xl border border-border/30 rounded-2xl shadow-card-hover p-6 mx-6 w-full max-w-sm" initial={{ scale: 0.9 }} animate={{ scale: 1 }} onClick={e => e.stopPropagation()}>
               <h3 className="font-display font-bold text-foreground text-lg mb-2">Relatório de Consumo</h3>
               <p className="font-body text-sm text-muted-foreground mb-4">{selectedDate.toLocaleDateString("pt-BR")} — {totalDay}L consumidos</p>
+
+              <p className="font-display text-xs font-semibold text-foreground mb-2">Escopo do relatório</p>
+              <div className="flex gap-1 bg-card/40 rounded-full p-0.5 mb-4" role="group" aria-label="Escopo do relatório">
+                {(["Diário", "Mensal", "Anual"] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setScope(s)}
+                    aria-pressed={scope === s}
+                    className={`flex-1 py-2 rounded-full text-[11px] font-display font-medium transition-all ${scope === s ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <p className="font-body text-[11px] text-muted-foreground mb-4">
+                {scope === "Anual" ? "Totais agrupados por mês do ano selecionado." : scope === "Mensal" ? "Detalhamento dia a dia do mês selecionado." : "Detalhamento dos últimos 7 dias."}
+              </p>
+
               <div className="flex gap-3">
                 <button onClick={generatePDF} className="flex-1 py-3 rounded-full bg-primary text-primary-foreground font-display font-semibold flex items-center justify-center gap-1 text-sm">
                   <FileDown className="w-4 h-4" /> Gerar PDF

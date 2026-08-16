@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useUser } from "@/contexts/UserContext";
 import { toast } from "@/hooks/use-toast";
-import jsPDF from "jspdf";
+import { generateConsumptionPDF, type ReportScope, type ReportRow } from "@/lib/pdfReport";
 
 import WaveBackground from "@/components/consumption/WaveBackground";
 import WaterDrop from "@/components/consumption/WaterDrop";
@@ -33,66 +33,71 @@ const ConsumptionPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dailyGoal, setDailyGoal] = useState(50);
   const [showReport, setShowReport] = useState(false);
+  const [scope, setScope] = useState<ReportScope>("Mensal");
 
   const hasData = Object.keys(consumptionHistory).length > 0;
   const dateStr = selectedDate.toISOString().split("T")[0];
   const totalDay = hasData ? getConsumptionForDate(dateStr, consumptionHistory) : 0;
+
+  const buildRows = (s: ReportScope): { rows: ReportRow[]; period: string } => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+
+    if (s === "Anual") {
+      const rows = monthNames.map((name, m) => {
+        const days = new Date(year, m + 1, 0).getDate();
+        let total = 0;
+        for (let d = 1; d <= days; d++) {
+          total += getConsumptionForDate(new Date(year, m, d).toISOString().split("T")[0], consumptionHistory);
+        }
+        return { label: `${name} / ${year}`, liters: total };
+      });
+      return { rows, period: `Ano de ${year}` };
+    }
+
+    if (s === "Diário") {
+      const rows: ReportRow[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(year, month, selectedDate.getDate() - i);
+        rows.push({
+          label: d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }),
+          liters: getConsumptionForDate(d.toISOString().split("T")[0], consumptionHistory),
+        });
+      }
+      return { rows, period: `Últimos 7 dias até ${selectedDate.toLocaleDateString("pt-BR")}` };
+    }
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const rows = Array.from({ length: daysInMonth }, (_, i) => {
+      const d = new Date(year, month, i + 1);
+      return {
+        label: d.toLocaleDateString("pt-BR"),
+        liters: getConsumptionForDate(d.toISOString().split("T")[0], consumptionHistory),
+      };
+    });
+    return { rows, period: `${monthNames[month]} / ${year}` };
+  };
 
   const generatePDF = () => {
     if (!hasData) {
       toast({ title: "Sem dados", description: "Não há registros de consumo para exportar.", variant: "destructive" });
       return;
     }
-    const doc = new jsPDF();
-    const month = selectedDate.getMonth();
-    const year = selectedDate.getFullYear();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    doc.setFillColor(10, 25, 47);
-    doc.rect(0, 0, 210, 35, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.text("Saneamento Cuiabá", 15, 15);
-    doc.setFontSize(11);
-    doc.text("Relatório de Consumo de Água", 15, 25);
-    doc.setTextColor(50, 50, 50);
-    doc.setFontSize(10);
-    doc.text(`Cliente: ${user?.nome || "Usuário"}`, 15, 45);
-    doc.text(`Período: ${monthNames[month]} / ${year}`, 15, 52);
-    doc.text(`Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}`, 15, 59);
-    doc.setFillColor(240, 245, 250);
-    doc.rect(15, 68, 180, 8, "F");
-    doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-    doc.text("Data", 20, 74);
-    doc.text("Consumo (Litros)", 130, 74);
-    let y = 82;
-    let totalMonth = 0;
-    for (let d = 1; d <= daysInMonth; d++) {
-      const ds = new Date(year, month, d).toISOString().split("T")[0];
-      const val = getConsumptionForDate(ds, consumptionHistory);
-      totalMonth += val;
-      if (d % 2 === 0) { doc.setFillColor(248, 250, 252); doc.rect(15, y - 5, 180, 7, "F"); }
-      doc.setTextColor(60, 60, 60);
-      doc.text(`${String(d).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}/${year}`, 20, y);
-      doc.text(`${val} L`, 140, y);
-      y += 7;
-      if (y > 270) { doc.addPage(); y = 20; }
-    }
-    y += 5;
-    if (y > 250) { doc.addPage(); y = 20; }
-    doc.setFillColor(0, 180, 216);
-    doc.rect(15, y - 5, 180, 20, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text(`Consumo Total: ${totalMonth.toLocaleString("pt-BR")} Litros`, 20, y + 3);
-    doc.text(`Média Diária: ${Math.round(totalMonth / daysInMonth)} Litros`, 20, y + 11);
-    doc.setTextColor(150, 150, 150);
-    doc.setFontSize(8);
-    doc.text("Gerado pelo app Saneamento Cuiabá — ODS 6", 15, 290);
-    doc.save(`relatorio_consumo_${String(month + 1).padStart(2, "0")}_${year}.pdf`);
+    const { rows, period } = buildRows(scope);
+    const doc = generateConsumptionPDF({
+      scope,
+      clientName: user?.nome || "Usuário",
+      periodLabel: period,
+      rows,
+    });
+    const stamp = scope === "Anual"
+      ? `${selectedDate.getFullYear()}`
+      : `${String(selectedDate.getMonth() + 1).padStart(2, "0")}_${selectedDate.getFullYear()}`;
+    doc.save(`relatorio_consumo_${scope.toLowerCase()}_${stamp}.pdf`);
     toast({ title: "PDF gerado!", description: "O download foi iniciado." });
     setShowReport(false);
   };
+
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-24">

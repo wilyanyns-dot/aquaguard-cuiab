@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useUser } from "@/contexts/UserContext";
 import { toast } from "@/hooks/use-toast";
 import { generateConsumptionPDF, type ReportScope, type ReportRow } from "@/lib/pdfReport";
+import { dateKey, isFuture, getConsumption } from "@/lib/consumption";
 
 import WaveBackground from "@/components/consumption/WaveBackground";
 import WaterDrop from "@/components/consumption/WaterDrop";
@@ -16,28 +17,20 @@ import GoalSetter from "@/components/consumption/GoalSetter";
 
 const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
-function seededRandom(seed: number) {
-  let s = seed;
-  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
-}
-
-function getConsumptionForDate(dateStr: string, history: Record<string, number>): number {
-  if (history[dateStr]) return history[dateStr];
-  const seed = dateStr.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  return Math.round(20 + seededRandom(seed)() * 40);
-}
-
 const ConsumptionPage = () => {
   const navigate = useNavigate();
-  const { consumptionHistory, user } = useUser();
+  const { consumptionHistory, user, getConsumptionForDate, getGoalForDate, setGoalForDate } = useUser();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [dailyGoal, setDailyGoal] = useState(50);
   const [showReport, setShowReport] = useState(false);
   const [scope, setScope] = useState<ReportScope>("Mensal");
 
   const hasData = Object.keys(consumptionHistory).length > 0;
-  const dateStr = selectedDate.toISOString().split("T")[0];
-  const totalDay = hasData ? getConsumptionForDate(dateStr, consumptionHistory) : 0;
+  const dateStr = dateKey(selectedDate);
+  const future = isFuture(dateStr);
+  const totalDay = hasData ? getConsumptionForDate(dateStr) : 0;
+  const dailyGoal = getGoalForDate(dateStr);
+  const getConsumptionForKey = (key: string) => getConsumption(key, consumptionHistory);
+
 
   const buildRows = (s: ReportScope): { rows: ReportRow[]; period: string } => {
     const year = selectedDate.getFullYear();
@@ -48,7 +41,7 @@ const ConsumptionPage = () => {
         const days = new Date(year, m + 1, 0).getDate();
         let total = 0;
         for (let d = 1; d <= days; d++) {
-          total += getConsumptionForDate(new Date(year, m, d).toISOString().split("T")[0], consumptionHistory);
+          total += getConsumptionForKey(dateKey(new Date(year, m, d)));
         }
         return { label: `${name} / ${year}`, liters: total };
       });
@@ -61,7 +54,7 @@ const ConsumptionPage = () => {
         const d = new Date(year, month, selectedDate.getDate() - i);
         rows.push({
           label: d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }),
-          liters: getConsumptionForDate(d.toISOString().split("T")[0], consumptionHistory),
+          liters: getConsumptionForKey(dateKey(d)),
         });
       }
       return { rows, period: `Últimos 7 dias até ${selectedDate.toLocaleDateString("pt-BR")}` };
@@ -72,7 +65,7 @@ const ConsumptionPage = () => {
       const d = new Date(year, month, i + 1);
       return {
         label: d.toLocaleDateString("pt-BR"),
-        liters: getConsumptionForDate(d.toISOString().split("T")[0], consumptionHistory),
+        liters: getConsumptionForKey(dateKey(d)),
       };
     });
     return { rows, period: `${monthNames[month]} / ${year}` };
@@ -120,20 +113,27 @@ const ConsumptionPage = () => {
         <InfiniteWeekScroll selectedDate={selectedDate} onSelectDate={setSelectedDate} />
 
         {/* Water drop */}
-        {hasData ? (
+        {hasData && !future ? (
           <motion.div className="flex flex-col items-center mb-6" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
             <WaterDrop liters={totalDay} goal={dailyGoal} dateLabel={selectedDate.toLocaleDateString("pt-BR")} />
-            <GoalSetter goal={dailyGoal} onSetGoal={setDailyGoal} />
+            <GoalSetter goal={dailyGoal} onSetGoal={(g) => setGoalForDate(dateStr, g)} />
           </motion.div>
         ) : (
           <div className="text-center py-10 mb-4">
             <Droplets className="w-12 h-12 text-muted-foreground mx-auto mb-2 opacity-40" />
-            <p className="font-display font-semibold text-muted-foreground">Sem dados anteriores</p>
+            <p className="font-display font-semibold text-muted-foreground">
+              {future ? "Dia futuro — sem meta ou consumo ainda" : "Sem dados anteriores"}
+            </p>
+            {future && (
+              <div className="mt-3 flex justify-center">
+                <GoalSetter goal={dailyGoal} onSetGoal={(g) => setGoalForDate(dateStr, g)} />
+              </div>
+            )}
           </div>
         )}
 
         {/* Charts */}
-        {hasData && (
+        {hasData && !future && (
           <ConsumptionCharts selectedDate={selectedDate} consumptionHistory={consumptionHistory} />
         )}
 

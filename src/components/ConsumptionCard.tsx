@@ -1,23 +1,22 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
+import { todayKey } from "@/lib/consumption";
 
 const ConsumptionCard = () => {
   const navigate = useNavigate();
-  const { consumptionHistory } = useUser();
-  const today = new Date().toISOString().split("T")[0];
-  const todayUsage = consumptionHistory[today] || 20;
+  const { getHourlyForDate, getGoalForDate } = useUser();
+  const today = todayKey();
 
-  const hourlyData = [
-    { hour: "6h", value: 5 }, { hour: "8h", value: 18 }, { hour: "10h", value: 32 },
-    { hour: "12h", value: 28 }, { hour: "14h", value: 35 }, { hour: "16h", value: 22 },
-    { hour: "18h", value: 30 }, { hour: "20h", value: 15 }, { hour: "22h", value: 8 },
-  ];
-  const maxVal = Math.max(...hourlyData.map((d) => d.value));
+  const hourlyData = getHourlyForDate(today);
+  const todayUsage = hourlyData.reduce((s, d) => s + d.value, 0);
+  const goal = getGoalForDate(today);
+
+  const maxVal = Math.max(...hourlyData.map((d) => d.value), 1);
   const chartW = 280;
   const chartH = 80;
   const points = hourlyData.map((d, i) => ({
-    x: (i / (hourlyData.length - 1)) * chartW,
+    x: (i / Math.max(hourlyData.length - 1, 1)) * chartW,
     y: chartH - (d.value / maxVal) * (chartH - 10),
   }));
   const pathD = points.reduce((acc, p, i) => {
@@ -38,7 +37,7 @@ const ConsumptionCard = () => {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-display font-bold text-foreground text-base">Consumo de Hoje</h3>
-          <span className="text-cinza-medio font-body text-xs">Meta diária: 250L</span>
+          <span className="text-cinza-medio font-body text-xs">Meta diária: {goal}L</span>
         </div>
         <svg viewBox="0 0 40 52" className="w-10 h-12">
           <defs><linearGradient id="homeDropFill" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stopColor="hsl(202,62%,55%)" /><stop offset="100%" stopColor="hsl(195,60%,70%)" /></linearGradient></defs>

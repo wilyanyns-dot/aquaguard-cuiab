@@ -1,27 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { dateKey, getConsumption, getHourly, getCreatedAt, isFuture } from "@/lib/consumption";
 
 const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-function seededRandom(seed: number) {
-  let s = seed;
-  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
-}
-
-function getConsumption(dateStr: string, history: Record<string, number>): number {
-  if (history[dateStr]) return history[dateStr];
-  const seed = dateStr.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  return Math.round(20 + seededRandom(seed)() * 40);
-}
-
-function getHourlyData(dateStr: string) {
-  const seed = dateStr.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const rng = seededRandom(seed);
-  return Array.from({ length: 24 }, (_, i) => ({
-    hour: `${String(i).padStart(2, "0")}h`,
-    value: Math.round(rng() * 8),
-  }));
-}
 
 interface ConsumptionChartsProps {
   selectedDate: Date;
@@ -32,38 +13,50 @@ type TabType = "Diário" | "Mensal" | "Anual";
 
 const ConsumptionCharts = ({ selectedDate, consumptionHistory }: ConsumptionChartsProps) => {
   const [activeTab, setActiveTab] = useState<TabType>("Diário");
-  const dateStr = selectedDate.toISOString().split("T")[0];
+  const dateStr = dateKey(selectedDate);
+
+  const hourlyData = useMemo(() => getHourly(dateStr, consumptionHistory), [dateStr, consumptionHistory]);
 
   const tabData = useMemo(() => {
     if (activeTab === "Diário") {
-      return getHourlyData(dateStr).filter((_, i) => i % 3 === 0).map(d => ({ label: d.hour, value: d.value }));
-    } else if (activeTab === "Mensal") {
+      return hourlyData.map(d => ({ label: d.hour, value: d.value }));
+    }
+    if (activeTab === "Mensal") {
       const year = selectedDate.getFullYear();
       const month = selectedDate.getMonth();
       const days = new Date(year, month + 1, 0).getDate();
       return Array.from({ length: days }, (_, i) => {
-        const d = new Date(year, month, i + 1);
-        return { label: `${i + 1}`, value: getConsumption(d.toISOString().split("T")[0], consumptionHistory) };
-      });
-    } else {
-      const year = selectedDate.getFullYear();
-      return Array.from({ length: 12 }, (_, i) => {
-        const daysInMonth = new Date(year, i + 1, 0).getDate();
-        let total = 0;
-        for (let d = 1; d <= daysInMonth; d++) {
-          total += getConsumption(new Date(year, i, d).toISOString().split("T")[0], consumptionHistory);
-        }
-        return { label: monthNames[i], value: Math.round(total / daysInMonth) };
+        const key = dateKey(new Date(year, month, i + 1));
+        return { label: `${i + 1}`, value: isFuture(key) ? 0 : getConsumption(key, consumptionHistory) };
       });
     }
-  }, [activeTab, dateStr, selectedDate, consumptionHistory]);
+    // Anual: acumula desde a criação da conta até hoje, agrupado por mês
+    const startKey = getCreatedAt();
+    const startYear = Number(startKey.slice(0, 4));
+    const year = selectedDate.getFullYear();
+    const years = Array.from({ length: Math.max(year - startYear + 1, 1) }, (_, i) => startYear + i);
+    const multiYear = years.length > 1;
+    const rows: { label: string; value: number }[] = [];
+    years.forEach(y => {
+      for (let m = 0; m < 12; m++) {
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
+        let total = 0;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const key = dateKey(new Date(y, m, d));
+          if (key < startKey || isFuture(key)) continue;
+          total += getConsumption(key, consumptionHistory);
+        }
+        if (total > 0 || !multiYear) {
+          rows.push({ label: multiYear ? `${monthNames[m]}/${String(y).slice(2)}` : monthNames[m], value: total });
+        }
+      }
+    });
+    return rows;
+  }, [activeTab, hourlyData, selectedDate, consumptionHistory]);
 
   const tabMax = Math.max(...tabData.map(d => d.value), 1);
-
-  const hourlyData = useMemo(() => {
-    if (activeTab !== "Diário") return [];
-    return getHourlyData(dateStr).filter((_, i) => i % 3 === 0);
-  }, [activeTab, dateStr]);
+  const hourlyMax = Math.max(...hourlyData.map(d => d.value), 1);
+  const total = tabData.reduce((s, d) => s + d.value, 0);
 
   return (
     <>
@@ -99,7 +92,7 @@ const ConsumptionCharts = ({ selectedDate, consumptionHistory }: ConsumptionChar
         </div>
         <div className="mt-2 text-center">
           <span className="text-[10px] text-muted-foreground font-body">
-            Total: {tabData.reduce((s, d) => s + d.value, 0).toLocaleString("pt-BR")} L · Média: {Math.round(tabData.reduce((s, d) => s + d.value, 0) / tabData.length)} L/{activeTab === "Anual" ? "mês" : "dia"}
+            Total: {total.toLocaleString("pt-BR")} L · Média: {Math.round(total / Math.max(tabData.length, 1))} L/{activeTab === "Anual" ? "mês" : activeTab === "Mensal" ? "dia" : "faixa"}
           </span>
         </div>
       </motion.div>
@@ -108,7 +101,7 @@ const ConsumptionCharts = ({ selectedDate, consumptionHistory }: ConsumptionChar
       {activeTab === "Diário" && (
         <motion.div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-2xl p-4 mb-4" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <h3 className="font-display font-bold text-foreground text-sm mb-3">Consumo por Hora</h3>
-          <div className="grid grid-cols-8 gap-1">
+          <div className="grid grid-cols-9 gap-1">
             {hourlyData.map((d, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
                 <div className="w-full h-16 relative rounded-md overflow-hidden bg-card/30">
@@ -116,7 +109,7 @@ const ConsumptionCharts = ({ selectedDate, consumptionHistory }: ConsumptionChar
                     className="absolute bottom-0 w-full rounded-t-sm"
                     style={{ background: `linear-gradient(to top, hsl(var(--accent)), hsl(var(--primary) / 0.5))` }}
                     initial={{ height: 0 }}
-                    animate={{ height: `${(d.value / 8) * 100}%` }}
+                    animate={{ height: `${(d.value / hourlyMax) * 100}%` }}
                     transition={{ delay: i * 0.05, duration: 0.4 }}
                   />
                 </div>

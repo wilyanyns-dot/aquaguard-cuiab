@@ -133,7 +133,7 @@ const ConsumptionPage = () => {
         )}
 
         {/* Charts */}
-        {hasData && (
+        {hasData && !future && (
           <ConsumptionCharts selectedDate={selectedDate} consumptionHistory={consumptionHistory} />
         )}
 

@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useUser } from "@/contexts/UserContext";
 import { toast } from "@/hooks/use-toast";
 import { generateConsumptionPDF, type ReportScope, type ReportRow } from "@/lib/pdfReport";
+import { dateKey, isFuture, getConsumption } from "@/lib/consumption";
 
 import WaveBackground from "@/components/consumption/WaveBackground";
 import WaterDrop from "@/components/consumption/WaterDrop";

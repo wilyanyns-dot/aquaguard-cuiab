@@ -16,28 +16,20 @@ import GoalSetter from "@/components/consumption/GoalSetter";
 
 const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
-function seededRandom(seed: number) {
-  let s = seed;
-  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
-}
-
-function getConsumptionForDate(dateStr: string, history: Record<string, number>): number {
-  if (history[dateStr]) return history[dateStr];
-  const seed = dateStr.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  return Math.round(20 + seededRandom(seed)() * 40);
-}
-
 const ConsumptionPage = () => {
   const navigate = useNavigate();
-  const { consumptionHistory, user } = useUser();
+  const { consumptionHistory, user, getConsumptionForDate, getGoalForDate, setGoalForDate } = useUser();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [dailyGoal, setDailyGoal] = useState(50);
   const [showReport, setShowReport] = useState(false);
   const [scope, setScope] = useState<ReportScope>("Mensal");
 
   const hasData = Object.keys(consumptionHistory).length > 0;
-  const dateStr = selectedDate.toISOString().split("T")[0];
-  const totalDay = hasData ? getConsumptionForDate(dateStr, consumptionHistory) : 0;
+  const dateStr = dateKey(selectedDate);
+  const future = isFuture(dateStr);
+  const totalDay = hasData ? getConsumptionForDate(dateStr) : 0;
+  const dailyGoal = getGoalForDate(dateStr);
+  const getConsumptionForKey = (key: string) => getConsumption(key, consumptionHistory);
+
 
   const buildRows = (s: ReportScope): { rows: ReportRow[]; period: string } => {
     const year = selectedDate.getFullYear();

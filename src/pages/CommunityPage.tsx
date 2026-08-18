@@ -48,15 +48,10 @@ const TipActions = ({ tip, onShare }: { tip: Tip; onShare: (t: Tip) => void }) =
 const CommunityPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { tips, addTip, hasProfanity, getTip } = useCommunity();
-  const { user } = useUser();
+  const { tips, getTip } = useCommunity();
 
   const [filter, setFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showNewPost, setShowNewPost] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDesc, setNewDesc] = useState("");
-  const [newCategory, setNewCategory] = useState(TIP_CATEGORIES[0]);
   const [shareTip, setShareTip] = useState<Tip | null>(null);
   const [openTip, setOpenTip] = useState<Tip | null>(() => {
     const deep = params.get("dica");

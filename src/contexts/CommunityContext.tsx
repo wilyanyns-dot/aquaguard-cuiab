@@ -105,8 +105,12 @@ export const CommunityProvider = ({ children }: { children: ReactNode }) => {
     setSavedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   const hasProfanity = (text: string) => {
-    const words = normalize(text).split(/[^a-z0-9]+/).filter(Boolean);
-    return words.some((w) => BAD_WORDS.includes(w));
+    const clean = normalize(text);
+    const words = clean.split(/\s+/).filter(Boolean);
+    return BAD_WORDS.some((raw) => {
+      const term = normalize(raw);
+      return term.includes(" ") ? clean.includes(term) : words.includes(term);
+    });
   };
 
   const addTip: CommunityContextType["addTip"] = ({ title, desc, category, author, bairro }) => {

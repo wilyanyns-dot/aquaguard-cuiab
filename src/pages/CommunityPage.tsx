@@ -75,27 +75,6 @@ const CommunityPage = () => {
 
   const shareUrl = (tip: Tip) => `${window.location.origin}/comunidade?dica=${tip.id}&fallback=${encodeURIComponent(APP_STORE_FALLBACK)}`;
 
-  const handleNewPost = () => {
-    if (!newTitle.trim() || !newDesc.trim()) {
-      toast({ title: "Preencha todos os campos", variant: "destructive" });
-      return;
-    }
-    if (hasProfanity(`${newTitle} ${newDesc}`)) {
-      toast({ title: "Seu texto contém palavras inadequadas", description: "Revise o conteúdo e tente novamente.", variant: "destructive" });
-      return;
-    }
-    addTip({
-      title: newTitle.trim(),
-      desc: newDesc.trim(),
-      category: newCategory,
-      author: user?.nome || "Você",
-      bairro: user?.endereco || "Cuiabá",
-    });
-    toast({ title: "Dica publicada! 🎉", description: "Ela já está no topo do feed." });
-    setShowNewPost(false);
-    setNewTitle("");
-    setNewDesc("");
-  };
 
   const shareTargets = (tip: Tip) => {
     const url = shareUrl(tip);

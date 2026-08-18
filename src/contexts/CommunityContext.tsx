@@ -123,6 +123,7 @@ export const CommunityProvider = ({ children }: { children: ReactNode }) => {
       likes: 0,
       tags: [category],
       createdAt: new Date().toISOString().split("T")[0],
+      ts: Date.now(),
       own: true,
     };
     setTips((prev) => [tip, ...prev]);

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Plus, ThumbsUp, BookmarkPlus, Share2, Search, Lightbulb, X, Send, Link2, ChevronRight } from "lucide-react";
+import { ArrowLeft, ThumbsUp, BookmarkPlus, Share2, Search, Lightbulb, X, Link2, ChevronRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { toast } from "@/hooks/use-toast";
 import { useCommunity, TIP_CATEGORIES, Tip } from "@/contexts/CommunityContext";
-import { useUser } from "@/contexts/UserContext";
+import NewTipFlow from "@/components/community/NewTipFlow";
 
 const APP_STORE_FALLBACK = "https://play.google.com/store/apps/details?id=br.com.saneamentocuiaba.app";
 

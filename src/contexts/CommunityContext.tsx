@@ -10,6 +10,7 @@ export interface Tip {
   tags: string[];
   badge?: string;
   createdAt: string;
+  ts?: number;
   own?: boolean;
 }
 

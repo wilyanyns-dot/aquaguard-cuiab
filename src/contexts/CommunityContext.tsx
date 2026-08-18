@@ -42,13 +42,38 @@ const seedTips: Tip[] = [
 ];
 
 const BAD_WORDS = [
-  "merda", "porra", "caralho", "buceta", "foda", "fodase", "puta", "putaria", "viado",
-  "bosta", "cuzao", "cuzão", "arrombado", "desgraçado", "desgracado", "otario", "otário",
-  "idiota", "imbecil", "babaca", "vagabundo", "corno", "piranha", "fdp", "escroto", "burro",
+  // 1. Palavrões e termos obscenos
+  "merda", "porra", "caralho", "caraio", "buceta", "boceta", "foda", "fodase", "fuder", "foder",
+  "puta", "putaria", "putinha", "bosta", "cuzao", "cu", "arrombado", "desgracado", "otario",
+  "escroto", "piroca", "pinto", "rola", "xoxota", "punheta", "gozada", "safado", "vadia", "vagabunda",
+  // 2. Abreviações / netlingo
+  "fdp", "lfdp", "tnc", "vtc", "vsf", "vtnc", "ctt", "crl", "krl", "pqp", "pnc", "tmnc", "fds",
+  // 3. Gírias ofensivas regionais
+  "corno", "cornao", "otaria", "babaca", "imbecil", "idiota", "burro", "jumento", "trouxa",
+  "mulambo", "arrombada", "peste", "praga", "lazarento", "cabaco", "cabaço", "abestado", "leso",
+  "jeguice", "jumenta", "banana", "frouxo", "maloqueiro", "piranha", "vagabundo", "pilantra",
+  "rata", "verme", "lixo", "escrota", "nojento",
+  // 4. Discurso de ódio e discriminação
+  "viado", "veado", "bicha", "boiola", "sapatao", "sapatão", "traveco", "macaco", "macaca",
+  "preto imundo", "crioulo", "neguinho", "favelado", "nordestinado", "paraiba", "baianada",
+  "judiar", "nazista", "hitler", "supremacista", "matar todos", "morte aos", "retardado",
+  "mongoloide", "aleijado", "deficiente mental", "gordo nojento", "xenofobo",
 ];
 
+const LEET_MAP: Record<string, string> = {
+  "4": "a", "@": "a", "3": "e", "1": "i", "!": "i", "|": "i", "0": "o", "5": "s", "$": "s", "7": "t",
+};
+
 const normalize = (s: string) =>
-  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[4@31!|05$7]/g, (c) => LEET_MAP[c] ?? c)
+    // remove separadores usados para burlar o filtro (f.d.p, f-d-p)
+    .replace(/[^a-z0-9\s]/g, "")
+    // colapsa letras repetidas (teeeermoooo -> termo)
+    .replace(/(.)\1{1,}/g, "$1");
 
 const load = <T,>(key: string, fallback: T): T => {
   try {

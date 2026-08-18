@@ -281,32 +281,6 @@ const CommunityPage = () => {
         )}
       </AnimatePresence>
 
-      {/* New post */}
-      <AnimatePresence>
-        {showNewPost && (
-          <motion.div className="fixed inset-0 z-50 bg-foreground/30 flex items-end" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowNewPost(false)}>
-            <motion.div className="w-full bg-card rounded-t-3xl p-6" initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Nova dica">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-display font-bold text-foreground text-lg">Nova Dica</h3>
-                <button onClick={() => setShowNewPost(false)} aria-label="Fechar"><X className="w-5 h-5 text-cinza-medio" /></button>
-              </div>
-              <div className="space-y-3">
-                <label htmlFor="titulo-dica" className="sr-only">Título da dica</label>
-                <input id="titulo-dica" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Título da dica" className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" />
-                <label htmlFor="categoria-dica" className="sr-only">Categoria</label>
-                <select id="categoria-dica" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none">
-                  {TIP_CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
-                <label htmlFor="texto-dica" className="sr-only">Texto da dica</label>
-                <textarea id="texto-dica" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="Compartilhe sua dica (sem limite de caracteres)..." className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none resize-none" style={{ minHeight: 100 }} />
-                <button onClick={handleNewPost} className="w-full py-3 rounded-full gradient-primary text-primary-foreground font-display font-semibold flex items-center justify-center gap-2">
-                  <Send className="w-4 h-4" /> Publicar Dica
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

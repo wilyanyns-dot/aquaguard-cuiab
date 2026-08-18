@@ -205,13 +205,7 @@ const CommunityPage = () => {
         {filtered.length === 0 && <p className="text-center text-sm text-cinza-medio font-body py-8">Nenhuma dica encontrada.</p>}
       </div>
 
-      <button
-        onClick={() => setShowNewPost(true)}
-        aria-label="Criar nova dica"
-        className="fixed bottom-20 right-5 w-14 h-14 rounded-full gradient-primary shadow-card-hover flex items-center justify-center z-30"
-      >
-        <Plus className="w-6 h-6 text-primary-foreground" strokeWidth={1.5} />
-      </button>
+      <NewTipFlow />
 
       {/* Full tip modal */}
       <AnimatePresence>

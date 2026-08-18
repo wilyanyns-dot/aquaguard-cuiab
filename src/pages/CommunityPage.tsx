@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Plus, ThumbsUp, BookmarkPlus, Share2, Search, Lightbulb, X, Send, Link2, ChevronRight } from "lucide-react";
+import { ArrowLeft, ThumbsUp, BookmarkPlus, Share2, Search, Lightbulb, X, Link2, ChevronRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { toast } from "@/hooks/use-toast";
 import { useCommunity, TIP_CATEGORIES, Tip } from "@/contexts/CommunityContext";
-import { useUser } from "@/contexts/UserContext";
+import NewTipFlow from "@/components/community/NewTipFlow";
 
 const APP_STORE_FALLBACK = "https://play.google.com/store/apps/details?id=br.com.saneamentocuiaba.app";
 
@@ -48,15 +48,10 @@ const TipActions = ({ tip, onShare }: { tip: Tip; onShare: (t: Tip) => void }) =
 const CommunityPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { tips, addTip, hasProfanity, getTip } = useCommunity();
-  const { user } = useUser();
+  const { tips, getTip } = useCommunity();
 
   const [filter, setFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showNewPost, setShowNewPost] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDesc, setNewDesc] = useState("");
-  const [newCategory, setNewCategory] = useState(TIP_CATEGORIES[0]);
   const [shareTip, setShareTip] = useState<Tip | null>(null);
   const [openTip, setOpenTip] = useState<Tip | null>(() => {
     const deep = params.get("dica");
@@ -80,27 +75,6 @@ const CommunityPage = () => {
 
   const shareUrl = (tip: Tip) => `${window.location.origin}/comunidade?dica=${tip.id}&fallback=${encodeURIComponent(APP_STORE_FALLBACK)}`;
 
-  const handleNewPost = () => {
-    if (!newTitle.trim() || !newDesc.trim()) {
-      toast({ title: "Preencha todos os campos", variant: "destructive" });
-      return;
-    }
-    if (hasProfanity(`${newTitle} ${newDesc}`)) {
-      toast({ title: "Seu texto contém palavras inadequadas", description: "Revise o conteúdo e tente novamente.", variant: "destructive" });
-      return;
-    }
-    addTip({
-      title: newTitle.trim(),
-      desc: newDesc.trim(),
-      category: newCategory,
-      author: user?.nome || "Você",
-      bairro: user?.endereco || "Cuiabá",
-    });
-    toast({ title: "Dica publicada! 🎉", description: "Ela já está no topo do feed." });
-    setShowNewPost(false);
-    setNewTitle("");
-    setNewDesc("");
-  };
 
   const shareTargets = (tip: Tip) => {
     const url = shareUrl(tip);
@@ -205,13 +179,7 @@ const CommunityPage = () => {
         {filtered.length === 0 && <p className="text-center text-sm text-cinza-medio font-body py-8">Nenhuma dica encontrada.</p>}
       </div>
 
-      <button
-        onClick={() => setShowNewPost(true)}
-        aria-label="Criar nova dica"
-        className="fixed bottom-20 right-5 w-14 h-14 rounded-full gradient-primary shadow-card-hover flex items-center justify-center z-30"
-      >
-        <Plus className="w-6 h-6 text-primary-foreground" strokeWidth={1.5} />
-      </button>
+      <NewTipFlow />
 
       {/* Full tip modal */}
       <AnimatePresence>
@@ -287,32 +255,6 @@ const CommunityPage = () => {
         )}
       </AnimatePresence>
 
-      {/* New post */}
-      <AnimatePresence>
-        {showNewPost && (
-          <motion.div className="fixed inset-0 z-50 bg-foreground/30 flex items-end" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowNewPost(false)}>
-            <motion.div className="w-full bg-card rounded-t-3xl p-6" initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Nova dica">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-display font-bold text-foreground text-lg">Nova Dica</h3>
-                <button onClick={() => setShowNewPost(false)} aria-label="Fechar"><X className="w-5 h-5 text-cinza-medio" /></button>
-              </div>
-              <div className="space-y-3">
-                <label htmlFor="titulo-dica" className="sr-only">Título da dica</label>
-                <input id="titulo-dica" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Título da dica" className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none" />
-                <label htmlFor="categoria-dica" className="sr-only">Categoria</label>
-                <select id="categoria-dica" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none outline-none">
-                  {TIP_CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
-                <label htmlFor="texto-dica" className="sr-only">Texto da dica</label>
-                <textarea id="texto-dica" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="Compartilhe sua dica (sem limite de caracteres)..." className="w-full py-2.5 px-4 rounded-xl bg-muted font-body text-sm text-foreground border-none resize-none" style={{ minHeight: 100 }} />
-                <button onClick={handleNewPost} className="w-full py-3 rounded-full gradient-primary text-primary-foreground font-display font-semibold flex items-center justify-center gap-2">
-                  <Send className="w-4 h-4" /> Publicar Dica
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

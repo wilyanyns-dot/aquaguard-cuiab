@@ -9,6 +9,17 @@ import NewTipFlow from "@/components/community/NewTipFlow";
 
 const APP_STORE_FALLBACK = "https://play.google.com/store/apps/details?id=br.com.saneamentocuiaba.app";
 
+const relativeTime = (ts: number) => {
+  const min = Math.floor((Date.now() - ts) / 60000);
+  if (min < 1) return "Agora mesmo";
+  if (min === 1) return "Há 1 minuto";
+  if (min < 60) return `Há ${min} minutos`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `Há ${h} ${h === 1 ? "hora" : "horas"}`;
+  const d = Math.floor(h / 24);
+  return `Há ${d} ${d === 1 ? "dia" : "dias"}`;
+};
+
 const TipActions = ({ tip, onShare }: { tip: Tip; onShare: (t: Tip) => void }) => {
   const { likedIds, savedIds, toggleLike, toggleSave } = useCommunity();
   const liked = likedIds.includes(tip.id);
@@ -157,7 +168,10 @@ const CommunityPage = () => {
                 </div>
                 <button onClick={() => navigate(`/comunidade/autor/${encodeURIComponent(tip.author)}`)} className="text-left">
                   <p className="font-display font-semibold text-xs text-foreground">{tip.author}</p>
-                  <span className="text-[10px] font-body text-cinza-medio">{tip.bairro}</span>
+                  <span className="text-[10px] font-body text-cinza-medio">
+                    {tip.bairro}
+                    {tip.ts ? ` • ${relativeTime(tip.ts)}` : ""}
+                  </span>
                 </button>
                 {tip.badge && (
                   <span className="ml-auto px-2 py-0.5 rounded-full bg-verde-sucesso/10 text-verde-sucesso text-[9px] font-display font-medium">

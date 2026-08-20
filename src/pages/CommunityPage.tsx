@@ -157,7 +157,10 @@ const CommunityPage = () => {
                 </div>
                 <button onClick={() => navigate(`/comunidade/autor/${encodeURIComponent(tip.author)}`)} className="text-left">
                   <p className="font-display font-semibold text-xs text-foreground">{tip.author}</p>
-                  <span className="text-[10px] font-body text-cinza-medio">{tip.bairro}</span>
+                  <span className="text-[10px] font-body text-cinza-medio">
+                    {tip.bairro}
+                    {tip.ts ? ` • ${relativeTime(tip.ts)}` : ""}
+                  </span>
                 </button>
                 {tip.badge && (
                   <span className="ml-auto px-2 py-0.5 rounded-full bg-verde-sucesso/10 text-verde-sucesso text-[9px] font-display font-medium">

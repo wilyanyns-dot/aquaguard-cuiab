@@ -30,11 +30,7 @@ const PortalBanner = () => {
             {/* Water */}
             <path d="M0 140 Q100 135 200 140 Q300 145 400 138 L400 150 L0 150Z" fill="hsl(202, 62%, 55%)" opacity="0.5" />
           </svg>
-          <div className="absolute inset-0 flex items-end p-4">
-            <span className="text-primary-foreground font-display font-bold text-sm drop-shadow-sm">
-              Notícias, projetos e informações
-            </span>
-          </div>
+        
         </div>
       </button>
     </motion.div>

@@ -121,7 +121,7 @@ const LeafletMap = ({ points, center, userLocation, iconFor, onSelect, dark = fa
       zoomControl={false}
       className="w-full h-full"
       style={{ background: dark ? "#0b1622" : "#eef3f7" }}
-      // eslint-disable-next-line react/no-unknown-property
+      
     >
       <TileLayer
         key={dark ? "dark" : "light"}

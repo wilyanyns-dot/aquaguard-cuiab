@@ -263,3 +263,11 @@
   animation: pulse 1.2s ease-in-out 2;
 }
 
+
+/* Dark styled map tiles (key-free OSM base) */
+.map-tiles-dark {
+  filter: invert(1) hue-rotate(190deg) brightness(0.92) contrast(0.9) saturate(0.75);
+}
+.leaflet-container {
+  font-family: inherit;
+}

@@ -111,9 +111,8 @@ const ClusteredMarkers = ({
 };
 
 const LeafletMap = ({ points, center, userLocation, iconFor, onSelect, dark = false }: Props) => {
-  const tiles = dark
-    ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-    : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+  // OSM tiles (key-free). Dark mode is achieved with a CSS filter on the tile pane.
+  const tiles = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   return (
     <MapContainer
@@ -122,11 +121,13 @@ const LeafletMap = ({ points, center, userLocation, iconFor, onSelect, dark = fa
       zoomControl={false}
       className="w-full h-full"
       style={{ background: dark ? "#0b1622" : "#eef3f7" }}
+      
     >
       <TileLayer
         key={dark ? "dark" : "light"}
-        attribution='&copy; OpenStreetMap &copy; CARTO'
+        attribution='&copy; OpenStreetMap'
         url={tiles}
+        className={dark ? "map-tiles-dark" : ""}
       />
       <Recenter center={center} />
       <ClusteredMarkers points={points} iconFor={iconFor} onSelect={onSelect} dark={dark} />

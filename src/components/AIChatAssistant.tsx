@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User, Loader2, Plus, Mic, Play, Globe, ChevronDown } from "lucide-react";
+import { MessageCircle, X, Send, User, Plus, Mic, Globe, ChevronDown, Sparkles } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: number;
@@ -10,6 +11,7 @@ interface Message {
   content: string;
   type?: "text" | "audio";
   audioDuration?: string;
+  sources?: { title: string; url: string }[];
 }
 
 const quickActions = [
@@ -140,18 +142,46 @@ const AIChatAssistant = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = (text: string) => {
-    if (!text.trim()) return;
-    const userMsg: Message = { id: Date.now(), role: "user", content: text };
-    setMessages(prev => [...prev, userMsg]);
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isTyping) return;
+    const trimmed = text.trim();
+    const userMsg: Message = { id: Date.now(), role: "user", content: trimmed };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = getAIResponse(text, user, consumptionHistory, messages);
-      setMessages(prev => [...prev, { id: Date.now() + 1, role: "assistant", content: response }]);
+    const context = JSON.stringify({
+      user: user ? { nome: user.nome, cidade: user.endereco, cep: user.cep } : null,
+      consumo: consumptionHistory,
+      conversa: nextMessages.slice(-8).map(({ role, content }) => ({ role, content })),
+      buscaAtualizadaSolicitada: webSearchEnabled,
+    });
+
+    try {
+      const { data, error } = await supabase.functions.invoke("maya-chat", {
+        body: { message: trimmed, context },
+      });
+      if (error) throw error;
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: data?.text || "Não consegui formular uma resposta agora.",
+        sources: data?.sources,
+      }]);
+    } catch (error) {
+      const fallback = getAIResponse(trimmed, user, consumptionHistory, messages).replace(/LUNA/g, "Maya");
+      const errorMessage = error instanceof Error ? error.message : "Falha temporária na conexão";
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: `${fallback}
+
+_Nota: a IA avançada está indisponível agora (${errorMessage})._`,
+      }]);
+    } finally {
       setIsTyping(false);
-    }, 600 + Math.random() * 800);
+    }
   };
 
   return (
@@ -196,10 +226,10 @@ const AIChatAssistant = () => {
             {/* Header */}
             <div className="px-4 py-3 flex items-center gap-3 border-b border-white/10" style={{ background: "linear-gradient(135deg, hsl(210 70% 10% / 0.9), hsl(200 60% 15% / 0.9))" }}>
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}>
-                <span className="text-lg">💧</span>
+                <Sparkles className="w-5 h-5 text-cyan-200" />
               </div>
               <div className="flex-1">
-                <p className="font-display font-bold text-white text-sm">LUNA — Assistente Oceânica</p>
+                <p className="font-display font-bold text-white text-sm">Maya — Assistente de Saneamento</p>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                   <span className="text-[10px] text-white/50 font-body">Online · Pagamentos, consumo e dicas</span>
@@ -214,9 +244,9 @@ const AIChatAssistant = () => {
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               {messages.length === 0 && (
                 <div className="text-center py-8">
-                  <div className="text-4xl mb-2">💧🌙</div>
-                  <p className="font-display font-bold text-white/80 text-sm mb-1">Olá! Sou a LUNA</p>
-                  <p className="font-body text-[11px] text-white/40">Sua assistente oceânica de saneamento</p>
+                  <Sparkles className="w-10 h-10 text-cyan-200 mx-auto mb-2" />
+                  <p className="font-display font-bold text-white/80 text-sm mb-1">Olá! Sou a Maya</p>
+                  <p className="font-body text-[11px] text-white/40">Sua assistente inteligente de saneamento</p>
                 </div>
               )}
               {messages.map(msg => (
@@ -228,7 +258,7 @@ const AIChatAssistant = () => {
                 >
                   {msg.role === "assistant" && (
                     <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-1" style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}>
-                      <span className="text-[10px]">💧</span>
+                      <Sparkles className="w-3 h-3 text-cyan-200" />
                     </div>
                   )}
                   <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs font-body whitespace-pre-wrap leading-relaxed ${
@@ -246,6 +276,16 @@ const AIChatAssistant = () => {
                     {msg.content.split("**").map((part, i) =>
                       i % 2 === 1 ? <strong key={i} className="text-cyan-300">{part}</strong> : <span key={i}>{part}</span>
                     )}
+                    {msg.sources && msg.sources.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-white/10 space-y-1">
+                        <span className="block text-[10px] text-white/50">Fontes consultadas</span>
+                        {msg.sources.slice(0, 3).map((source) => (
+                          <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="block text-[10px] text-cyan-200 underline truncate">
+                            {source.title}
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   {msg.role === "user" && (
                     <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-1" style={{ background: "linear-gradient(135deg, hsl(220 60% 35%), hsl(210 50% 45%))" }}>
@@ -257,7 +297,7 @@ const AIChatAssistant = () => {
               {isTyping && (
                 <motion.div className="flex justify-start gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}>
-                    <span className="text-[10px]">💧</span>
+                    <Sparkles className="w-3 h-3 text-cyan-200" />
                   </div>
                   <div className="px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-1.5" style={{ background: "hsl(205 55% 20% / 0.6)", border: "1px solid hsl(200 50% 50% / 0.15)" }}>
                     {[0, 1, 2].map(i => (
@@ -280,7 +320,7 @@ const AIChatAssistant = () => {
                 {quickActions.map(qa => (
                   <button
                     key={qa.label}
-                    onClick={() => sendMessage(qa.message)}
+                    onClick={() => void sendMessage(qa.message)}
                     className="px-3 py-1.5 rounded-full text-[10px] font-display font-medium whitespace-nowrap flex-shrink-0 transition-colors"
                     style={{ background: "hsl(202 62% 40% / 0.3)", border: "1px solid hsl(200 50% 50% / 0.2)", color: "hsl(192 80% 80%)" }}
                   >
@@ -299,7 +339,7 @@ const AIChatAssistant = () => {
                 <input
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(input); } }}
                   placeholder="Digite sua mensagem..."
                   className="flex-1 bg-transparent font-body text-sm text-white placeholder-white/30 outline-none"
                 />
@@ -313,7 +353,7 @@ const AIChatAssistant = () => {
               </div>
               {input.trim() ? (
                 <motion.button
-                  onClick={() => sendMessage(input)}
+                  onClick={() => void sendMessage(input)}
                   className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}
                   whileTap={{ scale: 0.9 }}

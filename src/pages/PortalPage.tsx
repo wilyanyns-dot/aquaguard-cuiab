@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Play, X, Target, Eye, HeartHandshake, Search } from "lucide-react";
+import { ArrowLeft, Play, X, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 
@@ -32,30 +32,11 @@ const videos: Video[] = [
 
 const featured = [videos[0], videos[5]];
 
-const institucional = [
-  {
-    icon: Target,
-    title: "Missão",
-    text: "Aproximar cada morador de Cuiabá do saneamento básico, transformando dados de consumo em consciência ambiental e cuidado diário com a água.",
-  },
-  {
-    icon: Eye,
-    title: "Visão",
-    text: "Ser a principal ponte digital entre a população e os serviços de água e esgoto, reduzindo o desperdício na cidade e ampliando o impacto social da ODS 6.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Valores",
-    text: "Sustentabilidade em cada gota, inclusão e acessibilidade para todos os perfis de usuários, e transparência total nas informações que exibimos.",
-  },
-];
-
 const glass = "bg-white/10 backdrop-blur-md border border-white/10";
 
 const PortalPage = () => {
   const a11y = useAccessibility();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"videos" | "institucional">("videos");
   const [category, setCategory] = useState<(typeof categories)[number]["key"]>("todos");
   const [query, setQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);

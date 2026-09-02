@@ -74,7 +74,7 @@ const VoceSaneamentoPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-0">
       <div className="gradient-header px-5 pt-12 pb-8 rounded-b-3xl">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => navigate(-1)}><ArrowLeft className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} /></button>
@@ -93,7 +93,7 @@ const VoceSaneamentoPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 px-5 py-6">
+      <div className="flex-1 px-5 py-6 pb-4">
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-4">
             {step === 0 && (
@@ -172,7 +172,7 @@ const VoceSaneamentoPage = () => {
         </AnimatePresence>
       </div>
 
-      <div className="px-5 pb-8 flex gap-3">
+      <div className="sticky bottom-0 z-20 px-5 pt-3 pb-24 flex gap-3 bg-background/95 backdrop-blur-sm border-t border-border">
         {step > 0 && (
           <button onClick={() => setStep((s) => s - 1)} className="flex-1 py-3.5 rounded-full border border-primary text-primary font-display font-semibold flex items-center justify-center gap-1">
             <ChevronLeft className="w-4 h-4" /> Anterior

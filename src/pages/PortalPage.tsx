@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Play, X, Target, Eye, HeartHandshake, Search } from "lucide-react";
+import { ArrowLeft, Play, X, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 
@@ -32,30 +32,11 @@ const videos: Video[] = [
 
 const featured = [videos[0], videos[5]];
 
-const institucional = [
-  {
-    icon: Target,
-    title: "Missão",
-    text: "Aproximar cada morador de Cuiabá do saneamento básico, transformando dados de consumo em consciência ambiental e cuidado diário com a água.",
-  },
-  {
-    icon: Eye,
-    title: "Visão",
-    text: "Ser a principal ponte digital entre a população e os serviços de água e esgoto, reduzindo o desperdício na cidade e ampliando o impacto social da ODS 6.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Valores",
-    text: "Sustentabilidade em cada gota, inclusão e acessibilidade para todos os perfis de usuários, e transparência total nas informações que exibimos.",
-  },
-];
-
 const glass = "bg-white/10 backdrop-blur-md border border-white/10";
 
 const PortalPage = () => {
   const a11y = useAccessibility();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"videos" | "institucional">("videos");
   const [category, setCategory] = useState<(typeof categories)[number]["key"]>("todos");
   const [query, setQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -90,33 +71,8 @@ const PortalPage = () => {
           </button>
         </header>
 
-        {/* Tabs */}
-        <div className="px-5">
-          <div className={`rounded-full p-1 grid grid-cols-2 gap-1 ${glass}`} role="tablist" aria-label="Seções do portal">
-            {[
-              { key: "videos", label: "Vídeos" },
-              { key: "institucional", label: "Institucional" },
-            ].map((t) => (
-              <button
-                key={t.key}
-                role="tab"
-                aria-selected={tab === t.key}
-                onClick={() => setTab(t.key as typeof tab)}
-                className={`py-2.5 rounded-full text-xs font-display font-semibold transition-all ${
-                  tab === t.key
-                    ? "bg-[#22b8ff] text-[#04202f] shadow-[0_0_22px_rgba(34,184,255,.5)]"
-                    : "text-white/60"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <motion.div key="videos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
 
-        <AnimatePresence mode="wait">
-          {tab === "videos" ? (
-            <motion.div key="videos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4">
               {showSearch && (
                 <div className="px-5 mb-4">
                   <input
@@ -210,46 +166,8 @@ const PortalPage = () => {
                 )}
               </div>
 
-              {/* Quem Somos transition */}
-              <section className="px-5 mt-10">
-                <h2 className="font-display font-extrabold text-white text-lg mb-3">Quem Somos</h2>
-                <div className="space-y-3">
-                  {institucional.map((b) => (
-                    <article key={b.title} className={`rounded-2xl p-4 ${glass}`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="w-9 h-9 rounded-xl bg-[#22b8ff]/20 border border-[#22b8ff]/40 flex items-center justify-center">
-                          <b.icon className="w-4 h-4 text-[#8ee0ff]" strokeWidth={1.6} />
-                        </span>
-                        <h3 className="font-display font-bold text-white text-base">{b.title}</h3>
-                      </div>
-                      <p className="font-body text-xs text-white/65 leading-relaxed">{b.text}</p>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            </motion.div>
-          ) : (
-            <motion.div key="inst" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-5 mt-5 space-y-3">
-              {institucional.map((b, i) => (
-                <motion.section
-                  key={b.title}
-                  className={`rounded-3xl p-5 ${glass}`}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-10 h-10 rounded-2xl bg-[#22b8ff]/20 border border-[#22b8ff]/40 flex items-center justify-center">
-                      <b.icon className="w-5 h-5 text-[#8ee0ff]" strokeWidth={1.6} />
-                    </span>
-                    <h2 className="font-display font-bold text-white text-lg">{b.title}</h2>
-                  </div>
-                  <p className="font-body text-xs text-white/65 leading-relaxed">{b.text}</p>
-                </motion.section>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </motion.div>
+
       </div>
 
       {/* Player modal */}

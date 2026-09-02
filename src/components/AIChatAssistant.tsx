@@ -123,7 +123,7 @@ const getAIResponse = (message: string, user: any, consumptionHistory: Record<st
     return `📞 **Canais de atendimento humano:**\n\n• **Telefone:** 0800 646 6115 (24h)\n• **WhatsApp:** (65) 3645-6115\n• **E-mail:** atendimento@aguasdecuiaba.com.br\n• **Presencial:** Av. CPA, Centro\n\nHorário: Seg-Sex, 8h às 17h`;
   }
   if (lower.includes("olá") || lower.includes("oi") || lower.includes("bom dia") || lower.includes("boa tarde") || lower.includes("boa noite")) {
-    return `Olá, ${userName}! 👋🌊 Sou a **LUNA**, sua assistente oceânica.\n\nPosso te ajudar com:\n• 💰 Pagamentos e faturas\n• 💧 Consumo e metas\n• 🔧 Problemas com pagamento\n• 📍 Informações da concessionária\n• 💡 Dicas de economia\n• 📅 Agendamentos\n\nComo posso te ajudar?`;
+    return `Olá, ${userName}! 👋🌊 Sou a **Maya**, sua assistente inteligente.\n\nPosso te ajudar com:\n• 💰 Pagamentos e faturas\n• 💧 Consumo e metas\n• 🔧 Problemas com pagamento\n• 📍 Informações da concessionária\n• 💡 Dicas de economia\n• 📅 Agendamentos\n\nComo posso te ajudar?`;
   }
   return `${userName}, essa é uma ótima pergunta! Posso te ajudar com:\n\n• **💰 Pagamentos** — faturas, Pix, comprovantes\n• **💧 Consumo** — histórico e metas\n• **🔧 Problemas** — erros de pagamento\n• **📍 Concessionária** — contatos e 2ª via\n• **💡 Dicas** — economizar água\n\nDeseja falar com um **atendente humano**? 📞`;
 };

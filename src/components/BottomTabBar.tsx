@@ -1,10 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Droplets, Map, Trophy } from "lucide-react";
+import { Home, Droplets, Map, Users, Trophy } from "lucide-react";
 
 const tabs = [
   { path: "/home", icon: Home, label: "Início" },
   { path: "/consumo", icon: Droplets, label: "Consumo" },
   { path: "/mapa", icon: Map, label: "Mapa" },
+  { path: "/comunidade", icon: Users, label: "Comunidade" },
   { path: "/ranking", icon: Trophy, label: "Ranking" },
 ];
 
@@ -17,7 +18,7 @@ const BottomTabBar = () => {
       aria-label="Navegação principal"
       className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border shadow-card"
     >
-      <div className="grid grid-cols-4 items-center h-16 max-w-lg mx-auto">
+      <div className="grid grid-cols-5 items-center h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;
           const isMap = tab.path === "/mapa";

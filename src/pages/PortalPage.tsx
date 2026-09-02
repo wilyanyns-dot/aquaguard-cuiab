@@ -90,33 +90,8 @@ const PortalPage = () => {
           </button>
         </header>
 
-        {/* Tabs */}
-        <div className="px-5">
-          <div className={`rounded-full p-1 grid grid-cols-2 gap-1 ${glass}`} role="tablist" aria-label="Seções do portal">
-            {[
-              { key: "videos", label: "Vídeos" },
-              { key: "institucional", label: "Institucional" },
-            ].map((t) => (
-              <button
-                key={t.key}
-                role="tab"
-                aria-selected={tab === t.key}
-                onClick={() => setTab(t.key as typeof tab)}
-                className={`py-2.5 rounded-full text-xs font-display font-semibold transition-all ${
-                  tab === t.key
-                    ? "bg-[#22b8ff] text-[#04202f] shadow-[0_0_22px_rgba(34,184,255,.5)]"
-                    : "text-white/60"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <motion.div key="videos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
 
-        <AnimatePresence mode="wait">
-          {tab === "videos" ? (
-            <motion.div key="videos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4">
               {showSearch && (
                 <div className="px-5 mb-4">
                   <input

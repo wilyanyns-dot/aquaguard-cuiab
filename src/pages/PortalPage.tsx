@@ -210,46 +210,8 @@ const PortalPage = () => {
                 )}
               </div>
 
-              {/* Quem Somos transition */}
-              <section className="px-5 mt-10">
-                <h2 className="font-display font-extrabold text-white text-lg mb-3">Quem Somos</h2>
-                <div className="space-y-3">
-                  {institucional.map((b) => (
-                    <article key={b.title} className={`rounded-2xl p-4 ${glass}`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="w-9 h-9 rounded-xl bg-[#22b8ff]/20 border border-[#22b8ff]/40 flex items-center justify-center">
-                          <b.icon className="w-4 h-4 text-[#8ee0ff]" strokeWidth={1.6} />
-                        </span>
-                        <h3 className="font-display font-bold text-white text-base">{b.title}</h3>
-                      </div>
-                      <p className="font-body text-xs text-white/65 leading-relaxed">{b.text}</p>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            </motion.div>
-          ) : (
-            <motion.div key="inst" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-5 mt-5 space-y-3">
-              {institucional.map((b, i) => (
-                <motion.section
-                  key={b.title}
-                  className={`rounded-3xl p-5 ${glass}`}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-10 h-10 rounded-2xl bg-[#22b8ff]/20 border border-[#22b8ff]/40 flex items-center justify-center">
-                      <b.icon className="w-5 h-5 text-[#8ee0ff]" strokeWidth={1.6} />
-                    </span>
-                    <h2 className="font-display font-bold text-white text-lg">{b.title}</h2>
-                  </div>
-                  <p className="font-body text-xs text-white/65 leading-relaxed">{b.text}</p>
-                </motion.section>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </motion.div>
+
       </div>
 
       {/* Player modal */}

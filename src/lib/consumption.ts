@@ -1,6 +1,6 @@
 // Central consumption data source (real state shared by Dashboard, Consumo, charts and PDF)
 
-export const CHART_HOURS = [6, 8, 10, 12, 14, 16, 18, 20, 22];
+export const CHART_HOURS = [6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
 export const DEFAULT_GOAL = 250;
 
 const GOALS_KEY = "saneamento-goals";

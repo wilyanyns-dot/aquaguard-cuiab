@@ -166,7 +166,8 @@ export function generateConsumptionPDF({ scope, clientName, periodLabel, rows, u
   }
 
   const total = rows.reduce((s, r) => s + r.liters, 0);
-  const avg = rows.length ? Math.round(total / rows.length) : 0;
+  const counted = rows.filter((r) => r.liters > 0).length;
+  const avg = counted ? Math.round(total / counted) : 0;
 
   doc.setFillColor(240, 249, 250);
   doc.setDrawColor(...BLUE);

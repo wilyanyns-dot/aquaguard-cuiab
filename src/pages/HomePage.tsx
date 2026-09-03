@@ -6,7 +6,9 @@ import PortalBanner from "@/components/PortalBanner";
 import SidebarDrawer from "@/components/SidebarDrawer";
 import ThemeToggle from "@/components/ThemeToggle";
 import WelcomeMessage from "@/components/WelcomeMessage";
+import AppTour from "@/components/AppTour";
 import { useUser } from "@/contexts/UserContext";
+
 
 const HomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -42,6 +44,7 @@ const HomePage = () => {
       </div>
 
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {user?.onboarded && <AppTour />}
     </div>
   );
 };

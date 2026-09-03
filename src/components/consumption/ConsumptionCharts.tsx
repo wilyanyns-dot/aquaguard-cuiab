@@ -92,7 +92,7 @@ const ConsumptionCharts = ({ selectedDate, consumptionHistory }: ConsumptionChar
         </div>
         <div className="mt-2 text-center">
           <span className="text-[10px] text-muted-foreground font-body">
-            Total: {total.toLocaleString("pt-BR")} L · Média: {Math.round(total / Math.max(tabData.length, 1))} L/{activeTab === "Anual" ? "mês" : activeTab === "Mensal" ? "dia" : "faixa"}
+            Total: {total.toLocaleString("pt-BR")} L · Média: {Math.round(total / Math.max(tabData.filter((d) => d.value > 0).length, 1))} L/{activeTab === "Anual" ? "mês" : activeTab === "Mensal" ? "dia" : "faixa"}
           </span>
         </div>
       </motion.div>

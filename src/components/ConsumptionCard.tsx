@@ -13,7 +13,8 @@ const ConsumptionCard = () => {
   const goal = getGoalForDate(today);
 
   const maxVal = Math.max(...hourlyData.map((d) => d.value), 1);
-  const chartW = 280;
+  // A largura excedente mantém as primeiras horas legíveis e permite arrastar até o fim.
+  const chartW = 560;
   const chartH = 80;
   const points = hourlyData.map((d, i) => ({
     x: (i / Math.max(hourlyData.length - 1, 1)) * chartW,
@@ -46,8 +47,8 @@ const ConsumptionCard = () => {
         </svg>
       </div>
 
-      <div className="w-full" style={{ maxHeight: "100px" }}>
-        <svg viewBox={`0 0 ${chartW} ${chartH + 20}`} className="w-full h-auto" style={{ maxHeight: "100px" }}>
+      <div className="w-full overflow-x-auto scrollbar-hide" style={{ maxHeight: "100px" }} aria-label="Gráfico de consumo por horário, arraste para ver o restante">
+        <svg viewBox={`0 0 ${chartW} ${chartH + 20}`} className="h-auto min-w-[560px]" style={{ maxHeight: "100px", width: `${chartW}px` }}>
           <defs><linearGradient id="areaFill" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="hsl(202,62%,55%)" stopOpacity="0.3" /><stop offset="100%" stopColor="hsl(202,62%,55%)" stopOpacity="0.02" /></linearGradient></defs>
           {[0,1,2,3].map((i) => <line key={i} x1="0" x2={chartW} y1={chartH*(i/3)} y2={chartH*(i/3)} stroke="hsl(200,15%,90%)" strokeWidth="0.5" />)}
           <path d={areaD} fill="url(#areaFill)" />

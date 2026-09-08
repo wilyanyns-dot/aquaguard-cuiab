@@ -13,7 +13,7 @@ const OFFENSIVE_TERMS = [
   // Termos de ódio / discriminação
   "viado", "boiola", "sapatão", "sapatao", "traveco", "crioulo", "macaco imundo", "preto imundo",
   // Abreviações de xingamento (netlingo)
-  "fdp", "lfdp", "tnc", "vtnc", "vsf", "vtmnc", "vtc", "pqp", "krl", "crl", "pnc", "tmnc", "fdc", "cdf nao",
+  "fdp", "lfdp", "tnc", "vtnc", "vsf", "vtmnc", "vtc", "pqp", "krl", "crl", "pnc", "tmnc", "fdc",
 ];
 
 const stripAccents = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");

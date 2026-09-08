@@ -1,9 +1,33 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, User, Plus, Mic, Globe, ChevronDown, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, User, Mic, MicOff, ChevronDown, Sparkles, ShieldAlert } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { detectProfanity } from "@/lib/profanityFilter";
+
+// Web Speech API (Chrome/Edge/Safari). Tipagem mínima para evitar dependência extra.
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onresult: ((e: any) => void) | null;
+  onend: (() => void) | null;
+  onerror: ((e: any) => void) | null;
+};
+const getRecognitionCtor = (): (new () => SpeechRecognitionLike) | null => {
+  const w = window as any;
+  return w.SpeechRecognition || w.webkitSpeechRecognition || null;
+};
+
+// Paleta translúcida da Maya (azul claro fundindo-se com vidro fosco)
+const glassPanel = "linear-gradient(165deg, hsl(198 90% 78% / 0.42) 0%, hsl(200 70% 60% / 0.22) 38%, hsl(210 40% 96% / 0.14) 70%, hsl(198 85% 72% / 0.28) 100%)";
+const glassHeader = "linear-gradient(135deg, hsl(198 90% 80% / 0.35), hsl(205 60% 70% / 0.12))";
+const bubbleUser = "linear-gradient(135deg, hsl(200 85% 62% / 0.55), hsl(190 70% 58% / 0.45))";
+const bubbleBot = "hsl(0 0% 100% / 0.22)";
+const avatarGrad = "linear-gradient(135deg, hsl(200 85% 62% / 0.9), hsl(188 70% 62% / 0.9))";
 
 interface Message {
   id: number;

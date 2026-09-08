@@ -157,18 +157,112 @@ const AIChatAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [warning, setWarning] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const baseInputRef = useRef("");
+  const warningTimer = useRef<number | null>(null);
   const { user, consumptionHistory } = useUser();
-  const navigate = useNavigate();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Tom azul-claro translúcido enquanto o usuário rola a página
+  useEffect(() => {
+    let timer: number | null = null;
+    const onScroll = () => {
+      setIsScrolling(true);
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => setIsScrolling(false), 220);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll, { capture: true } as any);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => () => { recognitionRef.current?.abort(); }, []);
+
+  const showWarning = useCallback((text: string) => {
+    setWarning(text);
+    if (warningTimer.current) window.clearTimeout(warningTimer.current);
+    warningTimer.current = window.setTimeout(() => setWarning(null), 4500);
+  }, []);
+
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    setListening(false);
+  }, []);
+
+  const startListening = () => {
+    const Ctor = getRecognitionCtor();
+    if (!Ctor) {
+      showWarning("Seu navegador não suporta ditado por voz. Tente o Chrome ou o Safari.");
+      return;
+    }
+    const rec = new Ctor();
+    rec.lang = "pt-BR";
+    rec.continuous = true;
+    rec.interimResults = true;
+    baseInputRef.current = input.trim();
+
+    rec.onresult = (e: any) => {
+      let finalText = "";
+      let interim = "";
+      for (let i = 0; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript as string;
+        if (e.results[i].isFinal) finalText += t + " ";
+        else interim += t;
+      }
+      const spoken = `${finalText}${interim}`.trim();
+      const check = detectProfanity(spoken);
+      if (check.blocked) {
+        // Bloqueio imediato: encerra a captação e descarta o trecho ofensivo
+        rec.abort();
+        recognitionRef.current = null;
+        setListening(false);
+        setInput(baseInputRef.current);
+        showWarning("Gravação interrompida: detectamos linguagem ofensiva. Vamos manter a conversa respeitosa. 💙");
+        return;
+      }
+      setInput([baseInputRef.current, spoken].filter(Boolean).join(" "));
+    };
+    rec.onerror = (e: any) => {
+      if (e?.error === "not-allowed" || e?.error === "service-not-allowed") {
+        showWarning("Permita o acesso ao microfone para usar o ditado por voz.");
+      }
+      setListening(false);
+      recognitionRef.current = null;
+    };
+    rec.onend = () => {
+      setListening(false);
+      recognitionRef.current = null;
+    };
+
+    try {
+      rec.start();
+      recognitionRef.current = rec;
+      setListening(true);
+    } catch {
+      showWarning("Não foi possível iniciar o microfone agora.");
+    }
+  };
+
+  const toggleMic = () => (listening ? stopListening() : startListening());
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || isTyping) return;
     const trimmed = text.trim();
+    if (detectProfanity(trimmed).blocked) {
+      showWarning("Sua mensagem contém linguagem ofensiva e não foi enviada.");
+      return;
+    }
+    if (listening) stopListening();
     const userMsg: Message = { id: Date.now(), role: "user", content: trimmed };
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
@@ -179,7 +273,7 @@ const AIChatAssistant = () => {
       user: user ? { nome: user.nome, cidade: user.endereco, cep: user.cep } : null,
       consumo: consumptionHistory,
       conversa: nextMessages.slice(-8).map(({ role, content }) => ({ role, content })),
-      buscaAtualizadaSolicitada: webSearchEnabled,
+      buscaAtualizadaSolicitada: /pesquis|busca|busque|atual|not[ií]cia|hoje em dia|recente/i.test(trimmed),
     });
 
     try {
@@ -208,14 +302,20 @@ _Nota: a IA avançada está indisponível agora (${errorMessage})._`,
     }
   };
 
+  const fabStyle = isScrolling && !isOpen
+    ? { background: "hsl(198 90% 78% / 0.45)", boxShadow: "0 6px 24px hsl(198 80% 60% / 0.25)", backdropFilter: "blur(10px)" }
+    : { background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 55% 52%))", boxShadow: "0 8px 32px hsl(202 62% 35% / 0.4)", backdropFilter: "blur(0px)" };
+
   return (
     <>
-      {/* FAB — glassmorphism */}
+      {/* FAB — acima de mapa e conteúdos (abaixo apenas de toasts/tutorial) */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-20 right-5 z-50 w-14 h-14 rounded-full flex items-center justify-center"
-        style={{ background: "linear-gradient(135deg, hsl(202 62% 35%), hsl(190 50% 45%))", boxShadow: "0 8px 32px hsl(202 62% 35% / 0.4)" }}
-        whileHover={{ scale: 1.1 }}
+        aria-label={isOpen ? "Fechar chat da Maya" : "Abrir chat da Maya"}
+        className="fixed bottom-20 right-5 z-[1300] w-14 h-14 rounded-full flex items-center justify-center border border-white/30"
+        animate={fabStyle}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
       >
         <AnimatePresence mode="wait">
@@ -231,46 +331,49 @@ _Nota: a IA avançada está indisponível agora (${errorMessage})._`,
         </AnimatePresence>
       </motion.button>
 
-      {/* Chat window — glassmorphism Deep Ocean */}
+      {/* Janela do chat — vidro fosco em degradê azul claro */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed bottom-36 right-4 z-50 w-[calc(100%-2rem)] max-w-sm rounded-2xl overflow-hidden flex flex-col border border-white/20"
+            className="fixed bottom-36 right-4 z-[1300] w-[calc(100%-2rem)] max-w-sm rounded-3xl overflow-hidden flex flex-col border border-white/35 text-foreground"
             style={{
-              height: "min(70vh, 520px)",
-              background: "linear-gradient(180deg, hsl(210 60% 13% / 0.85), hsl(205 55% 17% / 0.9))",
-              backdropFilter: "blur(20px)",
-              boxShadow: "0 20px 60px hsl(210 60% 10% / 0.5)",
+              height: "min(70vh, 540px)",
+              background: glassPanel,
+              backdropFilter: "blur(28px) saturate(140%)",
+              WebkitBackdropFilter: "blur(28px) saturate(140%)",
+              boxShadow: "0 24px 60px hsl(205 60% 20% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.45)",
             }}
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            initial={{ opacity: 0, y: 30, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.9 }}
+            exit={{ opacity: 0, y: 30, scale: 0.92 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            role="dialog"
+            aria-label="Chat com a Maya"
           >
             {/* Header */}
-            <div className="px-4 py-3 flex items-center gap-3 border-b border-white/10" style={{ background: "linear-gradient(135deg, hsl(210 70% 10% / 0.9), hsl(200 60% 15% / 0.9))" }}>
-              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}>
-                <Sparkles className="w-5 h-5 text-cyan-200" />
+            <div className="px-4 py-3 flex items-center gap-3 border-b border-white/25" style={{ background: glassHeader }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-card" style={{ background: avatarGrad }}>
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <div className="flex-1">
-                <p className="font-display font-bold text-white text-sm">Maya — Assistente de Saneamento</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-display font-bold text-sm">Maya — Assistente de Saneamento</p>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[10px] text-white/50 font-body">Online · Pagamentos, consumo e dicas</span>
+                  <div className="w-2 h-2 rounded-full bg-verde-sucesso animate-pulse" />
+                  <span className="text-[10px] opacity-70 font-body">Online · Pagamentos, consumo e dicas</span>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                <ChevronDown className="w-4 h-4 text-white/60" />
+              <button onClick={() => setIsOpen(false)} aria-label="Minimizar chat" className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center hover:bg-white/40 transition-colors">
+                <ChevronDown className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {/* Mensagens */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 relative">
               {messages.length === 0 && (
                 <div className="text-center py-8">
-                  <Sparkles className="w-10 h-10 text-cyan-200 mx-auto mb-2" />
-                  <p className="font-display font-bold text-white/80 text-sm mb-1">Olá! Sou a Maya</p>
-                  <p className="font-body text-[11px] text-white/40">Sua assistente inteligente de saneamento</p>
+                  <Sparkles className="w-10 h-10 mx-auto mb-2 text-primary" />
+                  <p className="font-display font-bold text-sm mb-1">Olá! Sou a Maya</p>
+                  <p className="font-body text-[11px] opacity-60">Sua assistente inteligente de saneamento</p>
                 </div>
               )}
               {messages.map(msg => (
@@ -281,30 +384,26 @@ _Nota: a IA avançada está indisponível agora (${errorMessage})._`,
                   animate={{ opacity: 1, y: 0 }}
                 >
                   {msg.role === "assistant" && (
-                    <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-1" style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}>
-                      <Sparkles className="w-3 h-3 text-cyan-200" />
+                    <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-1" style={{ background: avatarGrad }}>
+                      <Sparkles className="w-3 h-3 text-white" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs font-body whitespace-pre-wrap leading-relaxed ${
-                    msg.role === "user"
-                      ? "rounded-br-md text-white"
-                      : "rounded-bl-md text-white/90"
-                  }`}
-                  style={{
-                    background: msg.role === "user"
-                      ? "linear-gradient(135deg, hsl(202 62% 40% / 0.7), hsl(190 50% 45% / 0.7))"
-                      : "hsl(205 55% 20% / 0.6)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid hsl(200 50% 50% / 0.15)",
-                  }}>
+                  <div
+                    className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs font-body whitespace-pre-wrap leading-relaxed ${msg.role === "user" ? "rounded-br-md" : "rounded-bl-md"}`}
+                    style={{
+                      background: msg.role === "user" ? bubbleUser : bubbleBot,
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid hsl(0 0% 100% / 0.35)",
+                    }}
+                  >
                     {msg.content.split("**").map((part, i) =>
-                      i % 2 === 1 ? <strong key={i} className="text-cyan-300">{part}</strong> : <span key={i}>{part}</span>
+                      i % 2 === 1 ? <strong key={i} className="font-semibold">{part}</strong> : <span key={i}>{part}</span>
                     )}
                     {msg.sources && msg.sources.length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-white/10 space-y-1">
-                        <span className="block text-[10px] text-white/50">Fontes consultadas</span>
+                      <div className="mt-2 pt-2 border-t border-white/30 space-y-1">
+                        <span className="block text-[10px] opacity-70">Fontes consultadas</span>
                         {msg.sources.slice(0, 3).map((source) => (
-                          <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="block text-[10px] text-cyan-200 underline truncate">
+                          <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="block text-[10px] underline truncate">
                             {source.title}
                           </a>
                         ))}
@@ -312,25 +411,20 @@ _Nota: a IA avançada está indisponível agora (${errorMessage})._`,
                     )}
                   </div>
                   {msg.role === "user" && (
-                    <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-1" style={{ background: "linear-gradient(135deg, hsl(220 60% 35%), hsl(210 50% 45%))" }}>
-                      <User className="w-3 h-3 text-white" />
+                    <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-1 bg-white/30">
+                      <User className="w-3 h-3" />
                     </div>
                   )}
                 </motion.div>
               ))}
               {isTyping && (
                 <motion.div className="flex justify-start gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}>
-                    <Sparkles className="w-3 h-3 text-cyan-200" />
+                  <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: avatarGrad }}>
+                    <Sparkles className="w-3 h-3 text-white" />
                   </div>
-                  <div className="px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-1.5" style={{ background: "hsl(205 55% 20% / 0.6)", border: "1px solid hsl(200 50% 50% / 0.15)" }}>
+                  <div className="px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-1.5" style={{ background: bubbleBot, border: "1px solid hsl(0 0% 100% / 0.35)" }}>
                     {[0, 1, 2].map(i => (
-                      <motion.div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-cyan-400"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }}
-                      />
+                      <motion.div key={i} className="w-1.5 h-1.5 rounded-full bg-primary" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }} />
                     ))}
                   </div>
                 </motion.div>
@@ -338,15 +432,31 @@ _Nota: a IA avançada está indisponível agora (${errorMessage})._`,
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick actions */}
+            {/* Aviso fosco de conteúdo ofensivo / microfone */}
+            <AnimatePresence>
+              {warning && (
+                <motion.div
+                  role="alert"
+                  className="mx-3 mb-2 px-3.5 py-2.5 rounded-2xl flex items-start gap-2 text-xs font-body border border-white/40"
+                  style={{ background: "hsl(0 0% 100% / 0.28)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                >
+                  <ShieldAlert className="w-4 h-4 flex-shrink-0 text-vermelho-critico mt-0.5" />
+                  <span>{warning}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Ações rápidas */}
             {messages.length === 0 && (
               <div className="px-3 pb-2 flex gap-1.5 overflow-x-auto scrollbar-hide">
                 {quickActions.map(qa => (
                   <button
                     key={qa.label}
                     onClick={() => void sendMessage(qa.message)}
-                    className="px-3 py-1.5 rounded-full text-[10px] font-display font-medium whitespace-nowrap flex-shrink-0 transition-colors"
-                    style={{ background: "hsl(202 62% 40% / 0.3)", border: "1px solid hsl(200 50% 50% / 0.2)", color: "hsl(192 80% 80%)" }}
+                    className="px-3 py-1.5 rounded-full text-[10px] font-display font-medium whitespace-nowrap flex-shrink-0 transition-colors bg-white/25 border border-white/40 hover:bg-white/40"
                   >
                     {qa.label}
                   </button>
@@ -354,41 +464,43 @@ _Nota: a IA avançada está indisponível agora (${errorMessage})._`,
               </div>
             )}
 
-            {/* Input bar */}
-            <div className="p-3 border-t border-white/10 flex items-center gap-2">
-              <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "hsl(202 62% 40% / 0.3)" }}>
-                <Plus className="w-4 h-4 text-cyan-300" />
-              </button>
-              <div className="flex-1 flex items-center rounded-full px-3 py-2" style={{ background: "hsl(210 50% 20% / 0.6)", border: "1px solid hsl(200 50% 50% / 0.15)" }}>
+            {/* Barra de mensagens */}
+            <div className="p-3 border-t border-white/25 flex items-center gap-2">
+              <div className="flex-1 flex items-center rounded-full px-3 py-2 bg-white/25 border border-white/40">
                 <input
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(input); } }}
-                  placeholder="Digite sua mensagem..."
-                  className="flex-1 bg-transparent font-body text-sm text-white placeholder-white/30 outline-none"
+                  placeholder={listening ? "Ouvindo... fale agora" : "Digite sua mensagem..."}
+                  aria-label="Mensagem para a Maya"
+                  className="flex-1 bg-transparent font-body text-sm placeholder:opacity-50 outline-none"
                 />
-                <button
-                  onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                  className={`ml-1 w-6 h-6 rounded-full flex items-center justify-center transition-colors ${webSearchEnabled ? "bg-cyan-500/40" : "bg-white/5"}`}
-                  title="Busca na web"
-                >
-                  <Globe className="w-3 h-3 text-cyan-300" />
-                </button>
+                {listening && (
+                  <motion.span aria-hidden="true" className="ml-1 w-2 h-2 rounded-full bg-vermelho-critico" animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 1 }} />
+                )}
               </div>
-              {input.trim() ? (
-                <motion.button
-                  onClick={() => void sendMessage(input)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, hsl(202 62% 45%), hsl(190 50% 55%))" }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Send className="w-4 h-4 text-white" />
-                </motion.button>
-              ) : (
-                <button className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "hsl(202 62% 40% / 0.3)" }}>
-                  <Mic className="w-4 h-4 text-cyan-300" />
-                </button>
-              )}
+              <motion.button
+                onClick={toggleMic}
+                aria-label={listening ? "Parar gravação" : "Falar com a Maya"}
+                aria-pressed={listening}
+                className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border border-white/40"
+                style={{ background: listening ? "hsl(0 72% 55% / 0.55)" : "hsl(0 0% 100% / 0.28)" }}
+                animate={listening ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                transition={listening ? { repeat: Infinity, duration: 1.2 } : undefined}
+                whileTap={{ scale: 0.9 }}
+              >
+                {listening ? <MicOff className="w-4 h-4 text-white" /> : <Mic className="w-4 h-4" />}
+              </motion.button>
+              <motion.button
+                onClick={() => void sendMessage(input)}
+                disabled={!input.trim()}
+                aria-label="Enviar mensagem"
+                className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40"
+                style={{ background: avatarGrad }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Send className="w-4 h-4 text-white" />
+              </motion.button>
             </div>
           </motion.div>
         )}

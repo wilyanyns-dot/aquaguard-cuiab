@@ -28,7 +28,7 @@ const AchievementsPage = () => {
   const unlockedCount = achievements.filter(a => a.unlocked).length;
 
   const handleShare = (platform: string) => {
-    const text = `🏆 Conquistei ${unlockedCount} medalhas no Saneamento Cuiabá e economizei R$ ${totalSaved.toFixed(2)} na minha conta de água! #SaneamentoCuiabá #ODS6`;
+    const text = `🏆 Conquistei ${unlockedCount} medalhas no Águas do Amanhã e economizei R$ ${totalSaved.toFixed(2)} na minha conta de água! #AguasDoAmanha #ODS6`;
     let url = "";
     switch (platform) {
       case "whatsapp":

@@ -89,7 +89,7 @@ const CommunityPage = () => {
 
   const shareTargets = (tip: Tip) => {
     const url = shareUrl(tip);
-    const text = `${tip.title} — dica do app Saneamento Cuiabá`;
+    const text = `${tip.title} — dica do app Águas do Amanhã`;
     return [
       { label: "WhatsApp", href: `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`, color: "bg-verde-sucesso" },
       { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, color: "bg-primary" },

@@ -13,19 +13,21 @@ const ConsumptionCard = () => {
   const goal = getGoalForDate(today);
 
   const maxVal = Math.max(...hourlyData.map((d) => d.value), 1);
-  // A largura excedente mantém as primeiras horas legíveis e permite arrastar até o fim.
-  const chartW = 560;
+  // Gráfico responsivo: todas as faixas horárias cabem no card, sem cortes.
+  const chartW = 320;
   const chartH = 80;
+  const padX = 14;
+  const innerW = chartW - padX * 2;
   const points = hourlyData.map((d, i) => ({
-    x: (i / Math.max(hourlyData.length - 1, 1)) * chartW,
-    y: chartH - (d.value / maxVal) * (chartH - 10),
+    x: padX + (i / Math.max(hourlyData.length - 1, 1)) * innerW,
+    y: chartH - (d.value / maxVal) * (chartH - 12),
   }));
   const pathD = points.reduce((acc, p, i) => {
     if (i === 0) return `M${p.x},${p.y}`;
     const prev = points[i - 1];
     return `${acc} C${prev.x + (p.x - prev.x) * 0.4},${prev.y} ${prev.x + (p.x - prev.x) * 0.6},${p.y} ${p.x},${p.y}`;
   }, "");
-  const areaD = `${pathD} L${chartW},${chartH} L0,${chartH} Z`;
+  const areaD = `${pathD} L${chartW - padX},${chartH} L${padX},${chartH} Z`;
 
   return (
     <motion.div

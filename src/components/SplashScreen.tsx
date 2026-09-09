@@ -61,7 +61,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         <motion.div
           className="fixed inset-0 z-50 overflow-hidden bg-white"
           role="status"
-          aria-label="Carregando o aplicativo Saneamento Cuiabá"
+          aria-label="Carregando o aplicativo Águas do Amanhã"
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6 }}
         >
@@ -136,7 +136,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
             transition={{ duration: 0.8, delay: phase === "full" ? 0.6 : 0 }}
           >
             <p className="font-display font-bold text-2xl text-white tracking-wide">
-              Saneamento Cuiabá
+              Águas do Amanhã
             </p>
           </motion.div>
         </motion.div>

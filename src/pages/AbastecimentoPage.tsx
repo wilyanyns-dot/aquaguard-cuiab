@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Bell, BellOff, CalendarClock, Droplets, History, Moon, Sun, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useUser } from "@/contexts/UserContext";
 
 type Panel = "historico" | "previsao" | "alertas";
 
@@ -36,7 +35,6 @@ const waveLayers = [
 
 const AbastecimentoPage = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
   const [intro, setIntro] = useState(true);
   const [introText, setIntroText] = useState<"ola" | "info">("ola");
   const [panel, setPanel] = useState<Panel>("previsao");
@@ -127,8 +125,7 @@ const AbastecimentoPage = () => {
         <div className="px-5 mt-3">
           <div className="rounded-3xl p-4 bg-white/15 backdrop-blur-md border border-white/25">
             <p className="font-body text-sm text-white/90 leading-relaxed">
-              Acompanhe em tempo real a previsão e o histórico de chegada de água na sua região
-              {user?.bairro ? ` (${user.bairro})` : ""}.
+              Acompanhe em tempo real a previsão e o histórico de chegada de água na sua região.
             </p>
           </div>
         </div>

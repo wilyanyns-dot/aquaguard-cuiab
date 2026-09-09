@@ -24,6 +24,7 @@ import TourVirtualPage from "./pages/TourVirtualPage";
 import VoceSaneamentoPage from "./pages/VoceSaneamentoPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthorFeedPage from "./pages/AuthorFeedPage";
+import AbastecimentoPage from "./pages/AbastecimentoPage";
 import NotFound from "./pages/NotFound";
 import AIChatAssistant from "./components/AIChatAssistant";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
@@ -59,6 +60,7 @@ const AppContent = () => {
         <Route path="/educa" element={<EducaSaneamentoPage />} />
         <Route path="/tour" element={<TourVirtualPage />} />
         <Route path="/voce-saneamento" element={<VoceSaneamentoPage />} />
+        <Route path="/abastecimento" element={<AbastecimentoPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideTabs && <BottomTabBar />}

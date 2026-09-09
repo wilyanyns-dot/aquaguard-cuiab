@@ -57,6 +57,7 @@ const PortalPage = () => {
   const [query, setQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [activeVideo, setActiveVideo] = useState<Video | null>(null);
+  const [glow, setGlow] = useState<{ x: number; y: number; on: boolean }>({ x: 0, y: 0, on: false });
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -64,6 +65,9 @@ const PortalPage = () => {
       .filter((v) => category === "todos" || v.category === category)
       .filter((v) => !q || v.title.toLowerCase().includes(q));
   }, [category, query]);
+
+  const trackGlow = (e: React.PointerEvent) => setGlow({ x: e.clientX, y: e.clientY, on: true });
+  const endGlow = () => setGlow((g) => ({ ...g, on: false }));
 
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden relative bg-[#0a1220]">

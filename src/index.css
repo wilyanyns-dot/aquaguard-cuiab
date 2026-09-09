@@ -129,6 +129,22 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
   }
+
+  /* Contraste dos seletores nativos (option) no modo escuro */
+  .dark select,
+  .dark select option,
+  .dark select optgroup {
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--card));
+  }
+  .dark select option:checked,
+  .dark select option:hover {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  .dark select {
+    color-scheme: dark;
+  }
 }
 
 @layer utilities {

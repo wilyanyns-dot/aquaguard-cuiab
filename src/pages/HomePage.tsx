@@ -26,7 +26,7 @@ const HomePage = () => {
           >
             <Menu className="w-6 h-6" strokeWidth={1.5} />
           </button>
-          <h1 className="font-display font-bold text-primary-foreground text-lg">Saneamento Cuiabá</h1>
+          <h1 className="font-display font-bold text-primary-foreground text-lg">Águas do Amanhã</h1>
           <ThemeToggle className="text-primary-foreground" />
         </div>
         {user?.nome && (

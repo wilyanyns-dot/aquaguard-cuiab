@@ -48,7 +48,7 @@ function drawHeader(doc: jsPDF) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(...MUTED);
-  doc.text("Saneamento Cuiabá · Monitoramento hídrico inteligente", M + 16, M + 12);
+  doc.text("Águas do Amanhã · Monitoramento hídrico inteligente", M + 16, M + 12);
   doc.setDrawColor(...BLUE);
   doc.setLineWidth(0.8);
   doc.line(M, M + 18, M + 28, M + 18);
@@ -100,7 +100,7 @@ function drawFooters(doc: jsPDF) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(...MUTED);
-    doc.text("Gerado pelo app Saneamento Cuiabá — ODS 6", M, PAGE_H - 12);
+    doc.text("Gerado pelo app Águas do Amanhã — ODS 6", M, PAGE_H - 12);
     doc.text(`Página ${p} de ${total}`, PAGE_W - M, PAGE_H - 12, { align: "right" });
   }
 }

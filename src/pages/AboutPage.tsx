@@ -125,7 +125,7 @@ const AboutPage = () => {
 
         {/* About text */}
         <div className="bg-card rounded-2xl shadow-card p-5">
-          <h2 className="font-display font-bold text-foreground mb-2">Saneamento Cuiabá</h2>
+          <h2 className="font-display font-bold text-foreground mb-2">Águas do Amanhã</h2>
           <p className="font-body text-sm text-cinza-medio leading-relaxed">
             Somos mais que uma rede de canos; somos a saúde que chega à sua torneira. Este aplicativo foi criado para que você seja nosso maior fiscal e parceiro. Juntos, garantimos que Cuiabá continue sendo a Cidade Verde, protegendo nossos rios e o futuro das próximas gerações.
           </p>

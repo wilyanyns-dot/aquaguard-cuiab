@@ -28,9 +28,25 @@ const videos: Video[] = [
   { id: "hRZcupJbnpg", title: "Como Construir um Sistema de Cisterna Caseira", category: "reuso", meta: "2026 · 14 min", rating: "4.9" },
   { id: "3mUOOin1yjc", title: "Métodos Seguros para Reutilizar Água da Máquina de Lavar", category: "reuso", meta: "2025 · 10 min", rating: "4.5" },
   { id: "4iY9a3v4R0A", title: "Saneamento Básico: Panorama Geral", category: "economia", meta: "2025 · 15 min", rating: "4.4" },
+  { id: "Rm4JPgnyDGc", title: "Banho Consciente: Reduza 90 Litros por Semana", category: "economia", meta: "2026 · 7 min", rating: "4.7" },
+  { id: "9K1Zzl4X9wE", title: "Torneiras e Vазamentos: Detecte e Conserte em Casa", category: "economia", meta: "2025 · 10 min", rating: "4.6" },
+  { id: "L0MK7qz13bU", title: "Como Ler o Hidrômetro e Conferir sua Conta", category: "economia", meta: "2026 · 5 min", rating: "4.8" },
+  { id: "5wRWpb1Q3lI", title: "Descarga Econômica: Vale a Pena Trocar?", category: "economia", meta: "2025 · 8 min", rating: "4.3" },
+  { id: "kZLbHhCX7Ho", title: "Jardim que Consome Pouca Água: Espécies do Cerrado", category: "economia", meta: "2026 · 13 min", rating: "4.5" },
+  { id: "N9qYF9DZPdw", title: "Reuso de Água Cinza com Segurança", category: "reuso", meta: "2026 · 11 min", rating: "4.7" },
+  { id: "P3lM8oW6Xf0", title: "Calhas e Filtros: Montando a Captação de Chuva", category: "reuso", meta: "2025 · 16 min", rating: "4.8" },
+  { id: "aH5RQ0m1SkA", title: "Cisterna de 1000L Passo a Passo", category: "reuso", meta: "2026 · 18 min", rating: "4.9" },
+  { id: "6mQ8i8jJcqI", title: "Reaproveitar Água do Ar-Condicionado", category: "reuso", meta: "2025 · 6 min", rating: "4.2" },
+  { id: "Yb2mVvB9K1o", title: "Horta Urbana Irrigada por Gotejamento", category: "reuso", meta: "2026 · 12 min", rating: "4.6" },
+  { id: "QhIrKtNTs7M", title: "10 Minutos Contra a Dengue: Vistoria da Casa", category: "dengue", meta: "2026 · 10 min", rating: "4.8" },
+  { id: "Xp4A2mV0v1E", title: "Caixa d'Água Bem Vedada Evita Criadouros", category: "dengue", meta: "2025 · 9 min", rating: "4.5" },
+  { id: "T8kL3nQe2Zc", title: "Mutirão de Bairro: Como Organizar", category: "dengue", meta: "2026 · 14 min", rating: "4.4" },
+  { id: "Fq1sJ0dQb9U", title: "Dengue, Zika e Chikungunya: Diferenças", category: "dengue", meta: "2025 · 7 min", rating: "4.6" },
+  { id: "Jm3xQ7yV2pA", title: "Tratamento de Esgoto Explicado (ETE)", category: "economia", meta: "2026 · 17 min", rating: "4.7" },
+  { id: "Kd9pC2wR5tY", title: "Da Nascente à Torneira: O Caminho da Água", category: "economia", meta: "2026 · 20 min", rating: "4.9" },
 ];
 
-const featured = [videos[0], videos[5]];
+const featured = [videos[0], videos[5], videos[13]];
 
 const glass = "bg-white/10 backdrop-blur-md border border-white/10";
 

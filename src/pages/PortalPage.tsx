@@ -70,7 +70,29 @@ const PortalPage = () => {
   const endGlow = () => setGlow((g) => ({ ...g, on: false }));
 
   return (
-    <div className="min-h-screen pb-24 overflow-x-hidden relative bg-[#0a1220]">
+    <div
+      className="min-h-screen pb-24 overflow-x-hidden relative bg-[#0a1220]"
+      onPointerDown={trackGlow}
+      onPointerMove={(e) => { if (glow.on || e.pressure > 0 || e.pointerType === "mouse") trackGlow(e); }}
+      onPointerUp={endGlow}
+      onPointerLeave={endGlow}
+      onPointerCancel={endGlow}
+    >
+      {/* Brilho azulado que acompanha o dedo/cursor */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none fixed z-30 rounded-full"
+        style={{
+          width: 240,
+          height: 240,
+          left: glow.x - 120,
+          top: glow.y - 120,
+          background: "radial-gradient(circle, rgba(34,184,255,0.35) 0%, rgba(79,124,255,0.18) 45%, rgba(0,0,0,0) 70%)",
+          filter: "blur(12px)",
+        }}
+        animate={{ opacity: glow.on ? 1 : 0, scale: glow.on ? 1 : 0.7 }}
+        transition={{ duration: 0.25 }}
+      />
       {/* Glow background */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-[#12263f] via-[#0b1524] to-[#070d16]" />

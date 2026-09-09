@@ -29,7 +29,7 @@ const videos: Video[] = [
   { id: "3mUOOin1yjc", title: "Métodos Seguros para Reutilizar Água da Máquina de Lavar", category: "reuso", meta: "2025 · 10 min", rating: "4.5" },
   { id: "4iY9a3v4R0A", title: "Saneamento Básico: Panorama Geral", category: "economia", meta: "2025 · 15 min", rating: "4.4" },
   { id: "Rm4JPgnyDGc", title: "Banho Consciente: Reduza 90 Litros por Semana", category: "economia", meta: "2026 · 7 min", rating: "4.7" },
-  { id: "9K1Zzl4X9wE", title: "Torneiras e Vазamentos: Detecte e Conserte em Casa", category: "economia", meta: "2025 · 10 min", rating: "4.6" },
+  { id: "9K1Zzl4X9wE", title: "Torneiras e Vazamentos: Detecte e Conserte em Casa", category: "economia", meta: "2025 · 10 min", rating: "4.6" },
   { id: "L0MK7qz13bU", title: "Como Ler o Hidrômetro e Conferir sua Conta", category: "economia", meta: "2026 · 5 min", rating: "4.8" },
   { id: "5wRWpb1Q3lI", title: "Descarga Econômica: Vale a Pena Trocar?", category: "economia", meta: "2025 · 8 min", rating: "4.3" },
   { id: "kZLbHhCX7Ho", title: "Jardim que Consome Pouca Água: Espécies do Cerrado", category: "economia", meta: "2026 · 13 min", rating: "4.5" },

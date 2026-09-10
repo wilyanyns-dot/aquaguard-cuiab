@@ -49,14 +49,16 @@ const ConsumptionCard = () => {
         </svg>
       </div>
 
-      <div className="w-full overflow-x-auto scrollbar-hide" style={{ maxHeight: "100px" }} aria-label="Gráfico de consumo por horário, arraste para ver o restante">
-        <svg viewBox={`0 0 ${chartW} ${chartH + 20}`} className="h-auto min-w-[560px]" style={{ maxHeight: "100px", width: `${chartW}px` }}>
+      <div className="w-full" aria-label="Gráfico de consumo por faixa de horário">
+        <svg viewBox={`0 0 ${chartW} ${chartH + 20}`} className="w-full h-auto" preserveAspectRatio="none" style={{ maxHeight: "110px" }}>
           <defs><linearGradient id="areaFill" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="hsl(202,62%,55%)" stopOpacity="0.3" /><stop offset="100%" stopColor="hsl(202,62%,55%)" stopOpacity="0.02" /></linearGradient></defs>
-          {[0,1,2,3].map((i) => <line key={i} x1="0" x2={chartW} y1={chartH*(i/3)} y2={chartH*(i/3)} stroke="hsl(200,15%,90%)" strokeWidth="0.5" />)}
+          {[0,1,2,3].map((i) => <line key={i} x1={padX} x2={chartW - padX} y1={chartH*(i/3)} y2={chartH*(i/3)} stroke="hsl(200,15%,90%)" strokeWidth="0.5" />)}
           <path d={areaD} fill="url(#areaFill)" />
           <path d={pathD} fill="none" stroke="hsl(202,62%,55%)" strokeWidth="2" strokeLinecap="round" />
-          {points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3" fill="hsl(202,62%,55%)" stroke="white" strokeWidth="1.5" />)}
-          {hourlyData.map((d, i) => <text key={d.hour} x={points[i].x} y={chartH+14} textAnchor="middle" fontSize="8" fill="hsl(200,15%,55%)">{d.hour}</text>)}
+          {points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="hsl(202,62%,55%)" stroke="white" strokeWidth="1.2" />)}
+          {hourlyData.map((d, i) => (i % 2 === 0 || i === hourlyData.length - 1) && (
+            <text key={d.hour} x={points[i].x} y={chartH+14} textAnchor="middle" fontSize="7" fill="hsl(200,15%,55%)">{d.hour}</text>
+          ))}
         </svg>
       </div>
       <div className="mt-2 text-center">
